@@ -2,7 +2,6 @@
 #define COORDINATORWINDOW_H
 
 #include <QMainWindow>
-#include <QThread>
 #include <QUdpSocket>
 
 namespace Ui {
@@ -20,11 +19,17 @@ public:
 private slots:
     void on_pushButton_clicked();
 
+    void readPendingDatagrams();
+
 private:
     Ui::CoordinatorWindow *ui;
 
-    QThread _socketThread;
-    QUdpSocket _socket;
+    QUdpSocket *_socket;
+
+    void processDatagram(QHostAddress &senderAddr, int senderPort, QByteArray *data);
+
+    void log(QString &msg);
+    void log(const QString &msg);
 };
 
 #endif // COORDINATORWINDOW_H
