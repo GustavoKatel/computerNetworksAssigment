@@ -1,5 +1,4 @@
 #include "server/serverwindow.h"
-#include "server/channel.h"
 #include "ui_serverwindow.h"
 
 #include <QDateTime>
@@ -11,7 +10,10 @@ ServerWindow::ServerWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    createChannel();
+    // Create channels list
+    channelsList = new ChannelsList();
+
+    createChannel("default-channel");
 
     log("Starting server");
     startTCPServer();
@@ -62,7 +64,7 @@ void ServerWindow::log(QString message)
 {
     QDateTime currentTime = QDateTime::currentDateTime();
     ui->textEditLog->appendPlainText(
-                currentTime.toString() + ": " + message);
+                currentTime.toString() + ": " + message.trimmed());
 }
 
 void ServerWindow::on_readyRead(QTcpSocket *tcpSocket)
@@ -72,7 +74,10 @@ void ServerWindow::on_readyRead(QTcpSocket *tcpSocket)
         QByteArray ba = tcpSocket->readLine();
 
         // Parse message
-        createChannel();
+        // If create channel
+        createChannel(QString(ba).trimmed());
+
+        // If send message to a channel
         log(QString(ba));
 
         tcpSocket->write(ba);
@@ -89,9 +94,9 @@ void ServerWindow::handleConnection() {
     }
 }
 
-void ServerWindow::createChannel() {
-    // Create channel
-    // Insert tab
+void ServerWindow::createChannel(QString channelName) {
+    // Add to channel data structure
+    channelsList->createChannel(channelName, ui->tabWidget);
 
-    Channel *channel = new Channel("lol", ui->tabWidget);
+    log(tr("Number of channels: %1.").arg(channelsList->size()));
 }
