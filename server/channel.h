@@ -6,12 +6,15 @@
 #include <QtWidgets/QPlainTextEdit>
 #include <QtNetwork>
 
-class Channel
+class Channel : public QObject
 {
+    Q_OBJECT
+
 public:
     Channel(const QString &name, QTabWidget *tabParent);
 
     void addUser(QTcpSocket *user);
+    void sendMessage(QString message);
 
 private:
     QString name;
@@ -20,6 +23,9 @@ private:
     QList<QTcpSocket*> users;
 
     QWidget* initializeTab(QTabWidget *tabParent);
+
+    void on_readyRead(QTcpSocket *tcpSocket);
+
     void log(QString message);
 };
 

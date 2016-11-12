@@ -81,7 +81,8 @@ void ServerWindow::on_readyRead(QTcpSocket *tcpSocket)
 
         log(QString(ba));
 
-        tcpSocket->write(ba);
+        // Write back to user
+        // tcpSocket->write(ba);
     }
 }
 
