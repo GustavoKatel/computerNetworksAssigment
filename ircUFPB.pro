@@ -12,15 +12,18 @@ TARGET = ircUFPB
 TEMPLATE = app
 
 
-SOURCES += main.cpp\
-        mainwindow/mainwindow.cpp \
+SOURCES += main.cpp \
+    mainwindow/mainwindow.cpp \
     client/clientwindow.cpp \
-    coordinator/coordinatorwindow.cpp
+    coordinator/coordinatorwindow.cpp \
+    server/serverwindow.cpp
 
 HEADERS  += mainwindow/mainwindow.h \
     client/clientwindow.h \
-    coordinator/coordinatorwindow.h
+    coordinator/coordinatorwindow.h \
+    server/serverwindow.h
 
 FORMS    += mainwindow/mainwindow.ui \
     client/clientwindow.ui \
-    coordinator/coordinatorwindow.ui
+    coordinator/coordinatorwindow.ui \
+    server/serverwindow.ui

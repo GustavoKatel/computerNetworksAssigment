@@ -16,21 +16,21 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QPushButton" name="pushButton_2">
+     <widget class="QPushButton" name="buttonClient">
       <property name="text">
        <string>Client</string>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="pushButton">
+     <widget class="QPushButton" name="buttonServer">
       <property name="text">
        <string>Server</string>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="pushButton_3">
+     <widget class="QPushButton" name="buttonCoordinator">
       <property name="text">
        <string>Coordinator</string>
       </property>

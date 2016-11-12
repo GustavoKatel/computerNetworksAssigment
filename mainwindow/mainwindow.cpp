@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     coordinatorWindow = new CoordinatorWindow(this);
+    serverWindow = new ServerWindow(this);
 }
 
 MainWindow::~MainWindow()
@@ -15,7 +16,13 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_pushButton_3_clicked()
+void MainWindow::on_buttonServer_clicked()
+{
+    this->hide();
+    serverWindow->show();
+}
+
+void MainWindow::on_buttonCoordinator_clicked()
 {
     this->hide();
     coordinatorWindow->show();
