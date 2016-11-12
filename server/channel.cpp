@@ -4,6 +4,7 @@ Channel::Channel(const QString &name, QTabWidget *tabParent)
 {
     this->name = name;
     this->tab = initializeTab(tabParent);
+    this->users = QList<QTcpSocket*>();
 }
 
 QWidget* Channel::initializeTab(QTabWidget *tabParent)
@@ -14,5 +15,11 @@ QWidget* Channel::initializeTab(QTabWidget *tabParent)
     tabParent->setTabText(tabParent->indexOf(tab), name);
 
     return tab;
+}
+
+void Channel::addUser(QTcpSocket *user)
+{
+    users.append(user);
+    qDebug() << "adding user";
 }
 

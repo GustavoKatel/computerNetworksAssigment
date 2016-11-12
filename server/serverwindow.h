@@ -17,12 +17,6 @@ class ServerWindow : public QMainWindow
 
 public:
     explicit ServerWindow(QWidget *parent = 0);
-    void startTCPServer();
-    void createChannel(QString channelName);
-    void destroyChannel();
-    void on_readyRead(QTcpSocket *tcpSocket);
-    void handleConnection();
-
     ~ServerWindow();
 
 private slots:
@@ -33,6 +27,15 @@ private:
 
     QTcpServer *tcpServer;
     QDataStream in;
+
+    void startTCPServer();
+    void on_readyRead(QTcpSocket *tcpSocket);
+    void handleConnection();
+
+    void createChannel(QString channelName);
+    void addUserToChannel(QTcpSocket *user, QString channelName);
+
+    void destroyChannel();
 
     void log(QString message);
 };

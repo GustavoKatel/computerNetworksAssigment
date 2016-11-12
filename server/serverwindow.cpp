@@ -78,6 +78,7 @@ void ServerWindow::on_readyRead(QTcpSocket *tcpSocket)
         createChannel(QString(ba).trimmed());
 
         // If send message to a channel
+
         log(QString(ba));
 
         tcpSocket->write(ba);
@@ -89,6 +90,10 @@ void ServerWindow::handleConnection() {
         log("New connection!");
 
         QTcpSocket *tcpSocket = tcpServer->nextPendingConnection();
+
+        // Add user to channel
+        addUserToChannel(tcpSocket, "default-channel");
+
         connect(tcpSocket, &QIODevice::readyRead,
                 this, [this, tcpSocket]{ on_readyRead(tcpSocket); });
     }
@@ -100,3 +105,9 @@ void ServerWindow::createChannel(QString channelName) {
 
     log(tr("Number of channels: %1.").arg(channelsList->size()));
 }
+
+void ServerWindow::addUserToChannel(QTcpSocket *user, QString channelName)
+{
+    channelsList->addUserToChannel(user, channelName);
+}
+
