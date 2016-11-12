@@ -3,6 +3,7 @@
 
 #include <QtWidgets/QTabWidget>
 #include <QtWidgets/QWidget>
+#include <QtWidgets/QPlainTextEdit>
 #include <QtNetwork>
 
 class Channel
@@ -15,9 +16,11 @@ public:
 private:
     QString name;
     QWidget *tab;
+    QPlainTextEdit *textEditLog;
     QList<QTcpSocket*> users;
 
     QWidget* initializeTab(QTabWidget *tabParent);
+    void log(QString message);
 };
 
 #endif // CHANNEL_H
