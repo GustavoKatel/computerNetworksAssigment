@@ -6,9 +6,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
-    coordinatorWindow = new CoordinatorWindow(this);
-    serverWindow = new ServerWindow(this);
 }
 
 MainWindow::~MainWindow()
@@ -19,11 +16,13 @@ MainWindow::~MainWindow()
 void MainWindow::on_buttonServer_clicked()
 {
     this->hide();
+    serverWindow = new ServerWindow(this);
     serverWindow->show();
 }
 
 void MainWindow::on_buttonCoordinator_clicked()
 {
     this->hide();
+    coordinatorWindow = new CoordinatorWindow(this);
     coordinatorWindow->show();
 }

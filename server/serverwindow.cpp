@@ -1,4 +1,5 @@
 #include "server/serverwindow.h"
+#include "server/channel.h"
 #include "ui_serverwindow.h"
 
 #include <QDateTime>
@@ -10,8 +11,11 @@ ServerWindow::ServerWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    startTCPServer();
+    createChannel();
+
     log("Starting server");
+    startTCPServer();
+    log("Server started");
 }
 
 ServerWindow::~ServerWindow()
@@ -45,9 +49,10 @@ void ServerWindow::startTCPServer()
     // if we did not find one, use IPv4 localhost
     if (ipAddress.isEmpty())
         ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
-    log(tr("The server is running on\n\nIP: %1\nport: %2\n\n"
-                            "Run the Fortune Client example now.")
-                         .arg(ipAddress).arg(tcpServer->serverPort()));
+
+    // Update fields with current IP and Port
+    ui->textEditIP->setText(ipAddress);
+    ui->textEditPort->setText(QString::number(tcpServer->serverPort()));
 
     connect(tcpServer, &QTcpServer::newConnection, this,
             &ServerWindow::handleConnection);
@@ -60,12 +65,14 @@ void ServerWindow::log(QString message)
                 currentTime.toString() + ": " + message);
 }
 
-void ServerWindow::echo(QTcpSocket *tcpSocket)
+void ServerWindow::on_readyRead(QTcpSocket *tcpSocket)
 {
     if(tcpSocket->canReadLine())
     {
         QByteArray ba = tcpSocket->readLine();
 
+        // Parse message
+        createChannel();
         log(QString(ba));
 
         tcpSocket->write(ba);
@@ -78,6 +85,13 @@ void ServerWindow::handleConnection() {
 
         QTcpSocket *tcpSocket = tcpServer->nextPendingConnection();
         connect(tcpSocket, &QIODevice::readyRead,
-                this, [this, tcpSocket]{ echo(tcpSocket); });
+                this, [this, tcpSocket]{ on_readyRead(tcpSocket); });
     }
+}
+
+void ServerWindow::createChannel() {
+    // Create channel
+    // Insert tab
+
+    Channel *channel = new Channel("lol", ui->tabWidget);
 }

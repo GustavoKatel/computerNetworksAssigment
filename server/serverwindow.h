@@ -17,10 +17,12 @@ public:
     void startTCPServer();
     void createChannel();
     void destroyChannel();
-    void echo(QTcpSocket *tcpSocket);
+    void on_readyRead(QTcpSocket *tcpSocket);
     void handleConnection();
 
     ~ServerWindow();
+
+private slots:
 
 private:
     Ui::ServerWindow *ui;

@@ -16,12 +16,14 @@ SOURCES += main.cpp \
     mainwindow/mainwindow.cpp \
     client/clientwindow.cpp \
     coordinator/coordinatorwindow.cpp \
-    server/serverwindow.cpp
+    server/serverwindow.cpp \
+    server/channel.cpp
 
 HEADERS  += mainwindow/mainwindow.h \
     client/clientwindow.h \
     coordinator/coordinatorwindow.h \
-    server/serverwindow.h
+    server/serverwindow.h \
+    server/channel.h
 
 FORMS    += mainwindow/mainwindow.ui \
     client/clientwindow.ui \
