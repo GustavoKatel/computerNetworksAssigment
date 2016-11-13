@@ -6,7 +6,7 @@
 ClientWindow::ClientWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ClientWindow),
-    connectToCoordinatorDialog(this)
+    _coordinatorSocket(nullptr)
 {
     ui->setupUi(this);
 
@@ -40,44 +40,72 @@ void ClientWindow::initChat()
 
 void ClientWindow::initCoordinator()
 {
-    _socketCoordinator = new QUdpSocket(this);
+    // memory safety first :p
+    if(_coordinatorSocket) {
+        _coordinatorSocket->close();
+        _coordinatorSocket->deleteLater();
+        _coordinatorSocket = nullptr;
+    }
+    _coordinatorSocket = new QUdpSocket(this);
     // read slot
-    connect(_socketCoordinator, SIGNAL(readyRead()),
+    connect(_coordinatorSocket, SIGNAL(readyRead()),
                 this, SLOT(coordinator_read_pending_datagrams()));
 
     // state changed slot
-    connect(_socketCoordinator,
+    connect(_coordinatorSocket,
             SIGNAL(stateChanged(QAbstractSocket::SocketState)),
             this,
             SLOT(coordinator_changed_state(QAbstractSocket::SocketState))
             );
 
-    _socketCoordinator->bind(0);
+    _coordinatorSocket->bind(0);
 }
 
 void ClientWindow::connectToCoordinator()
 {
-    connectToCoordinatorDialog.setModal(true);
-    connectToCoordinatorDialog.show();
+    // always create a dialog, since it deletes itself when closed. See below
+    _connectToCoordinatorDialog = new ConnectToCoordinatorDialog(this);
+
+    // connects the finished slot and retrieves the inputted information
+    connect(_connectToCoordinatorDialog, &QDialog::finished, this, [this](int result){
+
+        if(result) {
+            _coordinatorAddr = QHostAddress(_connectToCoordinatorDialog->getAddress());
+            _coordinatorPort = _connectToCoordinatorDialog->getPort();
+            log(QString(tr("Quering server from: %1:%2")).arg(_coordinatorAddr.toString(), QString::number(_coordinatorPort)));
+
+            QString query("GET SERVER");
+            _coordinatorSocket->writeDatagram(query.toStdString().c_str(), query.length(), _coordinatorAddr, _coordinatorPort);
+        }
+
+        // always delete this dialog
+        _connectToCoordinatorDialog->deleteLater();
+        _connectToCoordinatorDialog = nullptr;
+
+    });
+
+    // set modal dialog to avoid user missing the window
+    _connectToCoordinatorDialog->setModal(true);
+    _connectToCoordinatorDialog->show();
 }
 
 void ClientWindow::coordinator_read_pending_datagrams()
 {
     // read all pending datagrams
-    while (_socketCoordinator->hasPendingDatagrams()) {
+    while (_coordinatorSocket->hasPendingDatagrams()) {
         QByteArray *datagram = new QByteArray();
         // alocate mem to the new incoming datagram
-        datagram->resize(_socketCoordinator->pendingDatagramSize());
+        datagram->resize(_coordinatorSocket->pendingDatagramSize());
         QHostAddress sender;
         quint16 senderPort;
 
         // read and store sender address and senderPort
-        _socketCoordinator->readDatagram(datagram->data(), datagram->size(),
+        _coordinatorSocket->readDatagram(datagram->data(), datagram->size(),
                                 &sender, &senderPort);
 
         QString dataStr(*datagram);
         dataStr.remove(QRegExp("[\\n\\r]*$"));
-        log(dataStr);
+        log("Coordinator says: " + dataStr);
     }
 }
 
@@ -136,16 +164,19 @@ void ClientWindow::processCommand(const QString &line)
 void ClientWindow::on_le_text_returnPressed()
 {
     this->processCommand(ui->le_text->text());
+    ui->le_text->clear();
 }
 
 void ClientWindow::on_toolButton_clicked()
 {
     this->processCommand(ui->le_text->text());
+    ui->le_text->clear();
 }
 
 void ClientWindow::sendText(const QString &text)
 {
-    ui->tb_chat->append("<font color=\"red\">[nick]</font>: " + text);
+    ui->tb_chat->append(QString(tr("<font color=\"red\">[%1]</font>: %2"))
+                        .arg(ui->le_nickname->text(), text));
 }
 
 void ClientWindow::on_tb_chat_anchorClicked(const QUrl &arg1)

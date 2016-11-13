@@ -34,9 +34,13 @@ private:
     Ui::ClientWindow *ui;
 
     QTcpSocket *_socketServer;
-    QUdpSocket *_socketCoordinator;
 
-    ConnectToCoordinatorDialog connectToCoordinatorDialog;
+    // Coordinator
+    QUdpSocket *_coordinatorSocket;
+    QHostAddress _coordinatorAddr;
+    int _coordinatorPort;
+
+    ConnectToCoordinatorDialog *_connectToCoordinatorDialog;
 
     void log(const QString &msg);
 
