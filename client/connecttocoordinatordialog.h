@@ -15,6 +15,9 @@ public:
     explicit ConnectToCoordinatorDialog(QWidget *parent = 0);
     ~ConnectToCoordinatorDialog();
 
+    const QString getAddress() const;
+    int getPort() const;
+
 private:
     Ui::ConnectToCoordinatorDialog *ui;
 };
