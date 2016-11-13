@@ -26,3 +26,10 @@ void MainWindow::on_buttonCoordinator_clicked()
     coordinatorWindow = new CoordinatorWindow(this);
     coordinatorWindow->show();
 }
+
+void MainWindow::on_buttonClient_clicked()
+{
+    this->hide();
+    clientWindow = new ClientWindow(this);
+    clientWindow->show();
+}
