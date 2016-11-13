@@ -7,6 +7,7 @@
 #include "utils.h"
 
 #define CT_REGEX_GET_SERVER "^GET SERVER$"
+#define CT_REGEX_ADD_SERVER "^SERVER ADD ([\\.0-9:\\[\\]]+) (\\d+)$"
 
 CoordinatorWindow::CoordinatorWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -17,9 +18,10 @@ CoordinatorWindow::CoordinatorWindow(QWidget *parent) :
 
     ui->bt_stop->hide();
 
-    // default text to "0.0.0.0", if IPv4
-    QHostAddress anyAddr(QHostAddress::Any);
-    ui->le_addr->setText(anyAddr.toString());
+    // default text to first non localhost ipv6, fallback to ipv4
+    // fallback to any
+    // ui->le_addr->setText(Utils::getFirstNonLocalhost(QHostAddress::Any).toString());
+    ui->le_addr->setText(QHostAddress(QHostAddress::Any).toString());
 }
 
 CoordinatorWindow::~CoordinatorWindow()
@@ -60,11 +62,13 @@ void  CoordinatorWindow::processDatagram(QHostAddress &senderAddr, int senderPor
     // test regex
     if(Utils::testRegex(CT_REGEX_GET_SERVER, dataStr)) {
         this->sendServer(senderAddr, senderPort);
+    } else if( Utils::testRegex(CT_REGEX_ADD_SERVER, dataStr) ) {
+        this->addServer(dataStr, senderAddr, senderPort);
     }
 
 }
 
-void CoordinatorWindow::log(QString msg)
+void CoordinatorWindow::log(const QString &msg)
 {
     ui->plainTextEdit->appendPlainText(msg);
 }
@@ -94,6 +98,9 @@ void CoordinatorWindow::on_bt_start_clicked()
     ui->bt_stop->show();
     ui->bt_start->hide();
 
+    ui->le_addr->setDisabled(true);
+    ui->le_port->setDisabled(true);
+
     _socket = new QUdpSocket(this);
 
     // read slot
@@ -122,6 +129,9 @@ void CoordinatorWindow::on_bt_stop_clicked()
     // invert the buttons Start/Stop
     ui->bt_stop->hide();
     ui->bt_start->show();
+
+    ui->le_addr->setDisabled(false);
+    ui->le_port->setDisabled(false);
 
 }
 
@@ -154,7 +164,7 @@ void CoordinatorWindow::socket_changed_state(QAbstractSocket::SocketState state)
     }
 }
 
-void CoordinatorWindow::udpSend(QHostAddress &addr, int port, QString &data)
+void CoordinatorWindow::udpSend(QHostAddress &addr, int port, const QString &data)
 {
 
     QString id = addr.toString()+":" + QString::number(port);
@@ -175,4 +185,28 @@ void CoordinatorWindow::sendServer(QHostAddress &addr, int port)
 
     this->udpSend(addr, port, data);
 
+}
+
+void CoordinatorWindow::addServer(QString data, QHostAddress &senderAddr, int senderPort)
+{
+    QStringList captures = Utils::testRegexAndCapture(CT_REGEX_ADD_SERVER, data);
+    QString ip = captures.at(1);
+    QString port = captures.at(2);
+
+    log("Adding server: " + ip + ":" + port);
+
+    QHostAddress addr(ip);
+    Server *server = new Server(addr, port.toInt());
+    _serverList[ip+":"+port] = server;
+
+    ui->list_servers->addItem(ip+":"+port);
+
+    udpSend(senderAddr, senderPort, "OK");
+
+}
+
+void CoordinatorWindow::updateServerListView()
+{
+    ui->list_servers->clear();
+    ui->list_servers->addItems(_serverList.keys());
 }

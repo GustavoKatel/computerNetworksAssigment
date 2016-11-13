@@ -37,12 +37,15 @@ private:
 
     void processDatagram(QHostAddress &senderAddr, int senderPort, QByteArray *data);
 
-    void log(QString msg);
+    void log(const QString &msg);
 
-    void udpSend(QHostAddress &addr, int port, QString &data);
+    void udpSend(QHostAddress &addr, int port, const QString &data);
+
+    void updateServerListView();
 
     // protocol functions
     void sendServer(QHostAddress &addr, int port);
+    void addServer(QString data, QHostAddress &senderAddr, int senderPort);
 
 };
 
