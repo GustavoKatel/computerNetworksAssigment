@@ -5,6 +5,8 @@
 #include <QTcpSocket>
 #include <QUdpSocket>
 
+#include "client/connecttocoordinatordialog.h"
+
 namespace Ui {
 class ClientWindow;
 }
@@ -34,11 +36,15 @@ private:
     QTcpSocket *_socketServer;
     QUdpSocket *_socketCoordinator;
 
+    ConnectToCoordinatorDialog connectToCoordinatorDialog;
+
     void log(const QString &msg);
 
     void initChat();
 
     void initCoordinator();
+
+    void connectToCoordinator();
 
     void processCommand(const QString &line);
 

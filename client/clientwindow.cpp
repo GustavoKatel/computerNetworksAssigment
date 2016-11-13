@@ -5,7 +5,8 @@
 
 ClientWindow::ClientWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::ClientWindow)
+    ui(new Ui::ClientWindow),
+    connectToCoordinatorDialog(this)
 {
     ui->setupUi(this);
 
@@ -31,7 +32,10 @@ void ClientWindow::log(const QString &msg)
 void ClientWindow::initChat()
 {
     ui->tb_chat->append("<h1>Welcome</h1>");
-    ui->tb_chat->append("<a href=\"#connectCoordinator\"> <font color=\"blue\"> Click here to connect to a coordinator </font> </a>");
+    ui->tb_chat->append(
+                QString("<a href=\"#connectCoordinator\"> <font color=\"blue\"> %1 </font> </a>")
+                .arg(tr("Click here to connect to a coordinator"))
+                );
 }
 
 void ClientWindow::initCoordinator()
@@ -49,6 +53,12 @@ void ClientWindow::initCoordinator()
             );
 
     _socketCoordinator->bind(0);
+}
+
+void ClientWindow::connectToCoordinator()
+{
+    connectToCoordinatorDialog.setModal(true);
+    connectToCoordinatorDialog.show();
 }
 
 void ClientWindow::coordinator_read_pending_datagrams()
@@ -76,6 +86,10 @@ void ClientWindow::coordinator_changed_state(QAbstractSocket::SocketState state)
     switch (state) {
     case QAbstractSocket::UnconnectedState:
         log(tr("Coordinator: Disconnected"));
+        ui->tb_chat->append(
+                    QString("<a href=\"#connectCoordinator\"> <font color=\"blue\"> %1 </font> </a>")
+                    .arg(tr("Lost connection with coordinator. Click here to try again"))
+                    );
         break;
     case QAbstractSocket::HostLookupState:
         log(tr("Coordinator: Looking for host"));
@@ -137,6 +151,6 @@ void ClientWindow::sendText(const QString &text)
 void ClientWindow::on_tb_chat_anchorClicked(const QUrl &arg1)
 {
     if(arg1.toString()=="#connectCoordinator") {
-        log("connect");
+        connectToCoordinator();
     }
 }
