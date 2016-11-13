@@ -26,20 +26,25 @@ bool Utils::testRegex(QString regex, QString text)
 }
 
 
-QHostAddress Utils::getFirstNonLocalhost(QHostAddress::SpecialAddress fallback)
+QHostAddress Utils::getFirstNonLocalhost(bool onlyIPv4, QHostAddress::SpecialAddress fallback)
 {
     QHostAddress addr(fallback);
 
     QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
-    // searches the first non-localhost IPv6 address
-    for(auto ip : ipAddressesList) {
 
-        // skip not-ipv6
-        if( ip.protocol() != QAbstractSocket::IPv6Protocol )
-            continue;
+    if(!onlyIPv4) {
 
-        if( ip != QHostAddress::LocalHostIPv6 )
-            return ip;
+        // searches the first non-localhost IPv6 address
+        for(auto ip : ipAddressesList) {
+
+            // skip not-ipv6
+            if( ip.protocol() != QAbstractSocket::IPv6Protocol )
+                continue;
+
+            if( ip != QHostAddress::LocalHostIPv6 )
+                return ip;
+
+        }
 
     }
 

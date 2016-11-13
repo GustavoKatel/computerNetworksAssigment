@@ -23,12 +23,15 @@ namespace Utils {
      */
     bool testRegex(QString regex, QString text);
 
+
     /**
      * @brief getFirstNonLocalhost Returns the first non-localhost IPv6 address. Fallback to ipv4.
-     * returns an empty address if none is available
+     * returns an empty address if none is available. Respects the onlyIPv4 param.
+     * @param onlyIPv4 Ignore IPv6
+     * @param fallback The default address if no criteria matches
      * @return QHostAddress The chosen address
      */
-    QHostAddress getFirstNonLocalhost(QHostAddress::SpecialAddress fallback=QHostAddress::Any);
+    QHostAddress getFirstNonLocalhost(bool onlyIPv4=false, QHostAddress::SpecialAddress fallback=QHostAddress::Any);
 
 }
 
