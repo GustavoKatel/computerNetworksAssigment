@@ -5,8 +5,11 @@
 #include <QStringList>
 #include <QList>
 
+#include "dataclass/d_server.h"
+#include "dataclass/d_channel.h"
+
 enum ProtocolMethod {
-    QUERY_SERVER = 0, // client->coord
+    GET_SERVER = 0, // client->coord
     JOIN, // client->coord
     SERVER_ADD, // server->coord
     SERVER_INFO, // coord->client (response to QUERY_SERVER)
@@ -25,22 +28,57 @@ public:
 
     bool parse(const QString &data);
 
-    const ProtocolMethod &getMethod() const;
+    const QList<ProtocolMethod> &getMethods() const;
 
-    const QStringList &getArgs() const;
+    const QList<QStringList> &getArgs() const;
 
-    const QStringList &getChannels() const;
+    /**
+     * @brief getChannels Get all the channels in the batch
+     * PS.: Delete the objects yourself
+     * @return QList<ChannelData *> * Pointer to list of ChannelData pointers
+     */
+    QList<ChannelData *> *getChannels();
 
+    /**
+     * @brief getServers Get all the servers in the batch
+     * PS.: Delete the objects yourself
+     * @return QList<ServerData *> * Pointer to list of ServerData pointers
+     */
+    QList<ServerData *> *getServers();
+
+    /**
+     * @brief make Creates a protocol message
+     * @param method ProtocolMethod The protocol method
+     * @param args QStringList A list of args
+     * @return QString containing the protocol message
+     */
     QString make(const ProtocolMethod &method, const QStringList &args);
+
+    /**
+     * @brief makeBatch Creates a batch of protocol messages
+     * @param methods A lost of ProtocolMethod's
+     * @param argList A list of args of each ProtocolMethod in @methods
+     * @return QString containing the created batch
+     */
+    QString makeBatch(const QList<ProtocolMethod> &methods, const QList<QStringList> &argList);
+
+    QString make_CHANNEL_INFO(ChannelData * channel);
+    QString make_CHANNEL_INFO(const QList<ChannelData *> &channels);
+
+    QString make_GET_SERVER();
+
+    QString make_JOIN(const QString &channelName);
+
+    QString make_SERVER_ADD(const QHostAddress &addr, int port);
+
+    QString make_GET_CHANNELS();
 
 private:
     QString _data;
 
-    ProtocolMethod _currentMethod;
+    QList<ProtocolMethod> _methods;
 
-    QStringList _args;
-
-    QStringList _channels;
+    QList<QStringList> _args;
 
     bool parseLine(const QString &data);
 
