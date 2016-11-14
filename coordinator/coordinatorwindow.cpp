@@ -196,7 +196,7 @@ void CoordinatorWindow::addServer(QString data, QHostAddress &senderAddr, int se
     log("Adding server: " + ip + ":" + port);
 
     QHostAddress addr(ip);
-    Server *server = new Server(addr, port.toInt());
+    ServerData *server = new ServerData(addr, port.toInt());
     _serverList[ip+":"+port] = server;
 
     ui->list_servers->addItem(ip+":"+port);

@@ -5,7 +5,7 @@
 #include <QtWidgets/QTabWidget>
 #include <QtNetwork>
 
-class ChannelsList : public QHash<QString, Channel*>
+class ChannelsList : public QHash<QString, ChannelData*>
 {
 public:
     ChannelsList();

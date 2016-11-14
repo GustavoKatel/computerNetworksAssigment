@@ -9,13 +9,13 @@ void ChannelsList::createChannel(const QString &channelName, QTabWidget *tabPare
 {
     // Create channel
     // TODO: Check if it already exists
-    Channel *channel = new Channel(channelName, tabParent);
+    ChannelData *channel = new ChannelData(channelName, tabParent);
     insert(channelName, channel);
 }
 
 void ChannelsList::addUserToChannel(QTcpSocket *user, QString channelName)
 {
-    Channel *channel = value(channelName);
+    ChannelData *channel = value(channelName);
 
     // TODO: Check if channels exist
 

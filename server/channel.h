@@ -6,12 +6,12 @@
 #include <QtWidgets/QPlainTextEdit>
 #include <QtNetwork>
 
-class Channel : public QObject
+class ChannelData : public QObject
 {
     Q_OBJECT
 
 public:
-    Channel(const QString &name, QTabWidget *tabParent);
+    ChannelData(const QString &name, QTabWidget *tabParent);
 
     void addUser(QTcpSocket *user);
     void sendMessage(QString message);

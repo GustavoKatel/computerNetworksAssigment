@@ -6,7 +6,7 @@
 ClientWindow::ClientWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ClientWindow),
-    _coordinatorSocket(nullptr)
+    _coordinatorClient(nullptr)
 {
     ui->setupUi(this);
 
@@ -40,25 +40,8 @@ void ClientWindow::initChat()
 
 void ClientWindow::initCoordinator()
 {
-    // memory safety first :p
-    if(_coordinatorSocket) {
-        _coordinatorSocket->close();
-        _coordinatorSocket->deleteLater();
-        _coordinatorSocket = nullptr;
-    }
-    _coordinatorSocket = new QUdpSocket(this);
-    // read slot
-    connect(_coordinatorSocket, SIGNAL(readyRead()),
-                this, SLOT(coordinator_read_pending_datagrams()));
 
-    // state changed slot
-    connect(_coordinatorSocket,
-            SIGNAL(stateChanged(QAbstractSocket::SocketState)),
-            this,
-            SLOT(coordinator_changed_state(QAbstractSocket::SocketState))
-            );
 
-    _coordinatorSocket->bind(0);
 }
 
 void ClientWindow::connectToCoordinator()
@@ -72,10 +55,25 @@ void ClientWindow::connectToCoordinator()
         if(result) {
             _coordinatorAddr = QHostAddress(_connectToCoordinatorDialog->getAddress());
             _coordinatorPort = _connectToCoordinatorDialog->getPort();
+
+            // memory safety first :p
+            if(_coordinatorClient) {
+                _coordinatorClient->close();
+                _coordinatorClient->deleteLater();
+                _coordinatorClient = nullptr;
+            }
+            _coordinatorClient = new CoordinatorClient(_coordinatorAddr, _coordinatorPort, this);
+
+            // state changed slot
+            connect(_coordinatorClient,
+                    SIGNAL(stateChanged(QAbstractSocket::SocketState)),
+                    this,
+                    SLOT(coordinator_changed_state(QAbstractSocket::SocketState))
+                    );
+
             log(QString(tr("Quering server from: %1:%2")).arg(_coordinatorAddr.toString(), QString::number(_coordinatorPort)));
 
-            QString query("GET SERVER");
-            _coordinatorSocket->writeDatagram(query.toStdString().c_str(), query.length(), _coordinatorAddr, _coordinatorPort);
+            _coordinatorClient->getServer();
         }
 
         // always delete this dialog
@@ -87,26 +85,6 @@ void ClientWindow::connectToCoordinator()
     // set modal dialog to avoid user missing the window
     _connectToCoordinatorDialog->setModal(true);
     _connectToCoordinatorDialog->show();
-}
-
-void ClientWindow::coordinator_read_pending_datagrams()
-{
-    // read all pending datagrams
-    while (_coordinatorSocket->hasPendingDatagrams()) {
-        QByteArray *datagram = new QByteArray();
-        // alocate mem to the new incoming datagram
-        datagram->resize(_coordinatorSocket->pendingDatagramSize());
-        QHostAddress sender;
-        quint16 senderPort;
-
-        // read and store sender address and senderPort
-        _coordinatorSocket->readDatagram(datagram->data(), datagram->size(),
-                                &sender, &senderPort);
-
-        QString dataStr(*datagram);
-        dataStr.remove(QRegExp("[\\n\\r]*$"));
-        log("Coordinator says: " + dataStr);
-    }
 }
 
 void ClientWindow::coordinator_changed_state(QAbstractSocket::SocketState state)

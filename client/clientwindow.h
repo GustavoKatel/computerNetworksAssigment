@@ -6,6 +6,7 @@
 #include <QUdpSocket>
 
 #include "client/connecttocoordinatordialog.h"
+#include "coordinator/coordinatorclient.h"
 
 namespace Ui {
 class ClientWindow;
@@ -20,8 +21,6 @@ public:
     ~ClientWindow();
 
 private slots:
-    void coordinator_read_pending_datagrams();
-
     void coordinator_changed_state(QAbstractSocket::SocketState state);
 
     void on_le_text_returnPressed();
@@ -36,7 +35,7 @@ private:
     QTcpSocket *_socketServer;
 
     // Coordinator
-    QUdpSocket *_coordinatorSocket;
+    CoordinatorClient *_coordinatorClient;
     QHostAddress _coordinatorAddr;
     int _coordinatorPort;
 

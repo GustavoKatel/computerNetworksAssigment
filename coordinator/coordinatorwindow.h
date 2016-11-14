@@ -5,7 +5,7 @@
 #include <QUdpSocket>
 #include <QHash>
 
-#include "coordinator/server.h"
+#include "dataclass/d_server.h"
 
 namespace Ui {
 class CoordinatorWindow;
@@ -33,7 +33,7 @@ private:
 
     QUdpSocket *_socket;
 
-    QHash<QString, Server *> _serverList;
+    QHash<QString, ServerData *> _serverList;
 
     void processDatagram(QHostAddress &senderAddr, int senderPort, QByteArray *data);
 
