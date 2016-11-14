@@ -21,7 +21,8 @@ SOURCES += main.cpp \
     server/channelslist.cpp \
     coordinator/server.cpp \
     utils.cpp \
-    client/connecttocoordinatordialog.cpp
+    client/connecttocoordinatordialog.cpp \
+    protocol/protocol.cpp
 
 HEADERS  += mainwindow/mainwindow.h \
     client/clientwindow.h \
@@ -31,10 +32,14 @@ HEADERS  += mainwindow/mainwindow.h \
     server/channelslist.h \
     coordinator/server.h \
     utils.h \
-    client/connecttocoordinatordialog.h
+    client/connecttocoordinatordialog.h \
+    protocol/protocol.h
 
 FORMS    += mainwindow/mainwindow.ui \
     client/clientwindow.ui \
     coordinator/coordinatorwindow.ui \
     server/serverwindow.ui \
     client/connecttocoordinatordialog.ui
+
+DISTFILES += \
+    PROTOCOLO.md

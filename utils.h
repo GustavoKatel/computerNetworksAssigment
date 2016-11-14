@@ -7,7 +7,7 @@
 
 namespace Utils {
 
-/**
+    /**
      * @brief testRegexAndCapture Test regex against text and return the captures
      * @param regex QString regex to test
      * @param text QString text to be tested
