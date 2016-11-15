@@ -23,6 +23,8 @@ public:
 private slots:
     void coordinator_changed_state(QAbstractSocket::SocketState state);
 
+    void server_info(QList<ServerData *> servers);
+
     void on_le_text_returnPressed();
 
     void on_toolButton_clicked();

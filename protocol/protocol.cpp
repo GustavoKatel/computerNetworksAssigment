@@ -16,7 +16,11 @@
 #define FMT_CHANNEL_INFO "CHANNEL INFO $1"
 
 ProtocolParser::ProtocolParser(QObject *parent) :
-    QObject(parent)
+    QObject(parent),
+    _methods(),
+    _args(),
+    _servers(),
+    _channels()
 {
 
 }
@@ -28,10 +32,14 @@ bool ProtocolParser::parse(const QString &data)
     _args.clear();
     _methods.clear();
 
+    _servers.clear();
+    _channels.clear();
+
     QStringList lines = data.split('\n');
 
     bool result = true;
     for(auto line : lines) {
+        if(line.isEmpty()) continue;
         result &= parseLine(line);
     }
 
@@ -190,37 +198,40 @@ const QList<QStringList> &ProtocolParser::getArgs() const
     return _args;
 }
 
-QList<ServerData *> *ProtocolParser::getServers()
+const QList<ServerData *> &ProtocolParser::getServers()
 {
-    QList<ServerData *> *servers = new QList<ServerData *>();
-
     QStringList argLine;
     ProtocolMethod method;
+
+    if(_servers.length()>0) return _servers;
 
     for(int i=0;i<_methods.length();i++) {
 
         argLine = _args[i];
         method = _methods[i];
 
-        if(method!=ProtocolMethod::SERVER_INFO || argLine.length() != 3) {
+        if( ( method!=ProtocolMethod::SERVER_INFO  &&
+                method!=ProtocolMethod::SERVER_ADD )  ||
+                argLine.length() != 3
+                ) {
             continue;
         }
 
         ServerData *server = new ServerData(QHostAddress(argLine[1]), argLine[2].toInt());
-        servers->push_back(server);
+        _servers.push_back(server);
 
     }
 
-    return servers;
+    return _servers;
 
 }
 
-QList<ChannelData *> *ProtocolParser::getChannels()
+const QList<ChannelData *> &ProtocolParser::getChannels()
 {
-    QList<ChannelData *> *channels = new QList<ChannelData *>();
-
     QStringList argLine;
     ProtocolMethod method;
+
+    if(_channels.length()>0) return _channels;
 
     for(int i=0;i<_methods.length();i++) {
 
@@ -232,11 +243,11 @@ QList<ChannelData *> *ProtocolParser::getChannels()
         }
 
         ChannelData *channel = new ChannelData(argLine[1]);
-        channels->push_back(channel);
+        _channels.push_back(channel);
 
     }
 
-    return channels;
+    return _channels;
 
 }
 
@@ -261,4 +272,9 @@ QString ProtocolParser::make_SERVER_ADD(const QHostAddress &addr, int port)
 QString ProtocolParser::make_GET_CHANNELS()
 {
     return make(ProtocolMethod::GET_CHANNELS, QStringList());
+}
+
+QString ProtocolParser::make_OK()
+{
+    return "OK";
 }

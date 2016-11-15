@@ -6,13 +6,11 @@
 
 #include "utils.h"
 
-#define CT_REGEX_GET_SERVER "^GET SERVER$"
-#define CT_REGEX_ADD_SERVER "^SERVER ADD ([\\.0-9:\\[\\]]+) (\\d+)$"
-
 CoordinatorWindow::CoordinatorWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::CoordinatorWindow),
-    _socket(nullptr)
+    _socket(nullptr),
+    _parser(this)
 {
     ui->setupUi(this);
 
@@ -52,18 +50,32 @@ void  CoordinatorWindow::processDatagram(QHostAddress &senderAddr, int senderPor
 {
     QString dataStr(*data);
     // removes eol
-    dataStr.remove(QRegExp("[\\n\\r]*$"));
+//    dataStr.remove(QRegExp("[\\n\\r]*$"));
 
     QString id = senderAddr.toString()+":" + QString::number(senderPort);
 
     QString line = "Recv from: " + id + " " + " data: " + dataStr;
     log( line );
 
-    // test regex
-    if(Utils::testRegex(CT_REGEX_GET_SERVER, dataStr)) {
-        this->sendServer(senderAddr, senderPort);
-    } else if( Utils::testRegex(CT_REGEX_ADD_SERVER, dataStr) ) {
-        this->addServer(dataStr, senderAddr, senderPort);
+    _parser.parse(dataStr);
+
+    if(_parser.getMethods().contains(ProtocolMethod::GET_SERVER)) {
+        sendServer(senderAddr, senderPort);
+    }
+
+    if(_parser.getMethods().contains(ProtocolMethod::JOIN)) {
+        // TODO: join
+    }
+
+    if(_parser.getMethods().contains(ProtocolMethod::SERVER_ADD)) {
+
+        for(auto server : _parser.getServers()) {
+            addServer(server, senderAddr, senderPort);
+        }
+    }
+
+    if(_parser.getMethods().contains(ProtocolMethod::GET_CHANNELS)) {
+        sendChannels(senderAddr, senderPort);
     }
 
 }
@@ -181,27 +193,34 @@ void CoordinatorWindow::sendServer(QHostAddress &addr, int port)
 //    Server *server = _serverList.begin().value();
 //    QString data = "SERVER " + server->getAddress().toString() + " " + server->getPort();
 
-    QString data = "SERVER ";
+    QString data = "SERVER INFO 192.168.1.2 9998";
 
     this->udpSend(addr, port, data);
 
 }
 
-void CoordinatorWindow::addServer(QString data, QHostAddress &senderAddr, int senderPort)
+void CoordinatorWindow::addServer(ServerData *data, QHostAddress &senderAddr, int senderPort)
 {
-    QStringList captures = Utils::testRegexAndCapture(CT_REGEX_ADD_SERVER, data);
-    QString ip = captures.at(1);
-    QString port = captures.at(2);
 
-    log("Adding server: " + ip + ":" + port);
+    QString id = data->getAddress().toString() + ":" + QString::number(senderPort);
 
-    QHostAddress addr(ip);
-    ServerData *server = new ServerData(addr, port.toInt());
-    _serverList[ip+":"+port] = server;
+    // if the server already exists, clear everything we know about it
+    if(_serverList.contains(id)) {
+        delete _serverList[id];
+    }
 
-    ui->list_servers->addItem(ip+":"+port);
+    _serverList[id] = data;
 
-    udpSend(senderAddr, senderPort, "OK");
+    if(_channelMap.contains(id)) {
+        for(auto ch : _channelMap[id]) {
+            delete ch;
+        }
+        _channelMap[id].clear();
+    } else {
+        _channelMap[id] = QList<ChannelData *>();
+    }
+
+    udpSend(senderAddr, senderPort, _parser.make_OK());
 
 }
 
@@ -209,4 +228,9 @@ void CoordinatorWindow::updateServerListView()
 {
     ui->list_servers->clear();
     ui->list_servers->addItems(_serverList.keys());
+}
+
+void CoordinatorWindow::sendChannels(QHostAddress &addr, int port)
+{
+
 }

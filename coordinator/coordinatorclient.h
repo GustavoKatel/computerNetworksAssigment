@@ -27,9 +27,9 @@ public:
 signals:
     void ack();
 
-    void channelInfo(QList<ChannelData *> *channels);
+    void channelInfo(QList<ChannelData *> channels);
 
-    void serverInfo(QList<ServerData *> *servers);
+    void serverInfo(QList<ServerData *> servers);
 
 public slots:
 

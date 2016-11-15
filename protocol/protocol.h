@@ -37,14 +37,14 @@ public:
      * PS.: Delete the objects yourself
      * @return QList<ChannelData *> * Pointer to list of ChannelData pointers
      */
-    QList<ChannelData *> *getChannels();
+    const QList<ChannelData *> &getChannels();
 
     /**
      * @brief getServers Get all the servers in the batch
      * PS.: Delete the objects yourself
      * @return QList<ServerData *> * Pointer to list of ServerData pointers
      */
-    QList<ServerData *> *getServers();
+    const QList<ServerData *> &getServers();
 
     /**
      * @brief make Creates a protocol message
@@ -73,12 +73,17 @@ public:
 
     QString make_GET_CHANNELS();
 
+    QString make_OK();
+
 private:
     QString _data;
 
     QList<ProtocolMethod> _methods;
 
     QList<QStringList> _args;
+
+    QList<ServerData *> _servers;
+    QList<ChannelData *> _channels;
 
     bool parseLine(const QString &data);
 

@@ -71,6 +71,12 @@ void ClientWindow::connectToCoordinator()
                     SLOT(coordinator_changed_state(QAbstractSocket::SocketState))
                     );
 
+            connect(_coordinatorClient,
+                    &CoordinatorClient::serverInfo,
+                    this,
+                    &ClientWindow::server_info
+                    );
+
             log(QString(tr("Quering server from: %1:%2")).arg(_coordinatorAddr.toString(), QString::number(_coordinatorPort)));
 
             _coordinatorClient->getServer();
@@ -161,5 +167,16 @@ void ClientWindow::on_tb_chat_anchorClicked(const QUrl &arg1)
 {
     if(arg1.toString()=="#connectCoordinator") {
         connectToCoordinator();
+    }
+}
+
+void ClientWindow::server_info(QList<ServerData *> servers)
+{
+    for(auto server : servers) {
+        QString line = "Got server: ";
+
+        line += server->getAddress().toString() + ":" + QString::number(server->getPort());
+
+        log(line);
     }
 }
