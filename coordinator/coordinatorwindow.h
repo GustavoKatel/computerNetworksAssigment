@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QUdpSocket>
 #include <QHash>
+#include <QTreeWidgetItem>
 
 #include "dataclass/d_server.h"
 #include "dataclass/d_channel.h"
@@ -36,6 +37,7 @@ private:
     QUdpSocket *_socket;
 
     QHash<QString, ServerData *> _serverList;
+    QHash<QString, QTreeWidgetItem *> _serverTreeMap;
     QHash<QString, QList<ChannelData *>> _channelMap;
 
     ProtocolParser _parser;
@@ -52,6 +54,7 @@ private:
     void sendServer(QHostAddress &addr, int port);
     void addServer(ServerData *data, QHostAddress &senderAddr, int senderPort);
     void sendChannels(QHostAddress &addr, int port);
+    void join(QHostAddress &addr, int port);
 
 };
 

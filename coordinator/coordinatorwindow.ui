@@ -129,13 +129,18 @@
          </layout>
         </item>
         <item>
-         <widget class="QListWidget" name="list_servers">
+         <widget class="QTreeWidget" name="tree_servers">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <column>
+           <property name="text">
+            <string notr="true">1</string>
+           </property>
+          </column>
          </widget>
         </item>
        </layout>

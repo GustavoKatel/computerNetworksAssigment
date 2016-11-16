@@ -30,7 +30,6 @@ void CoordinatorClient::read_pending_datagrams()
                                 &sender, &senderPort);
 
         QString dataStr(*datagram);
-//        dataStr.remove(QRegExp("[\\n\\r]*$"));
 
         doDatagram(dataStr);
     }
