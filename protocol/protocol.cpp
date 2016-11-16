@@ -10,10 +10,10 @@
 #define REGEX_CHANNEL_INFO "^CHANNEL INFO (\\w+)$"
 #define REGEX_OK "^OK$"
 
-#define FMT_SERVER_ADD "SERVER ADD $1 $2"
-#define FMT_JOIN "JOIN $1"
-#define FMT_SERVER_INFO "SERVER INFO $1 $2"
-#define FMT_CHANNEL_INFO "CHANNEL INFO $1"
+#define FMT_SERVER_ADD "SERVER ADD %1 %2"
+#define FMT_JOIN "JOIN %1"
+#define FMT_SERVER_INFO "SERVER INFO %1 %2"
+#define FMT_CHANNEL_INFO "CHANNEL INFO %1"
 
 ProtocolParser::ProtocolParser(QObject *parent) :
     QObject(parent),
@@ -277,4 +277,12 @@ QString ProtocolParser::make_GET_CHANNELS()
 QString ProtocolParser::make_OK()
 {
     return "OK";
+}
+
+QString ProtocolParser::make_SERVER_INFO(ServerData *server)
+{
+    QStringList list;
+    list.push_back(server->getAddress().toString());
+    list.push_back(QString::number(server->getPort()));
+    return make(ProtocolMethod::SERVER_INFO, list);
 }

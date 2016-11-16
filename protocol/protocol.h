@@ -71,6 +71,8 @@ public:
 
     QString make_SERVER_ADD(const QHostAddress &addr, int port);
 
+    QString make_SERVER_INFO(ServerData *server);
+
     QString make_GET_CHANNELS();
 
     QString make_OK();
