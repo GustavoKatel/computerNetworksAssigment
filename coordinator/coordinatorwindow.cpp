@@ -55,6 +55,7 @@ void  CoordinatorWindow::processDatagram(QHostAddress &senderAddr, int senderPor
     QString id = senderAddr.toString()+":" + QString::number(senderPort);
 
     QString line = "Recv from: " + id + " " + " data: " + dataStr;
+    line.remove(QRegExp("[\\n\\r]*$"));
     log( line );
 
     _parser.parse(dataStr);
@@ -190,10 +191,9 @@ void CoordinatorWindow::udpSend(QHostAddress &addr, int port, const QString &dat
 void CoordinatorWindow::sendServer(QHostAddress &addr, int port)
 {
     // TODO: send a random server?
-//    Server *server = _serverList.begin().value();
-//    QString data = "SERVER " + server->getAddress().toString() + " " + server->getPort();
+    ServerData *server = _serverList.values().at(qrand() % _serverList.size());
 
-    QString data = "SERVER INFO 192.168.1.2 9998";
+    QString data = _parser.make_SERVER_INFO(server);
 
     this->udpSend(addr, port, data);
 
@@ -202,7 +202,7 @@ void CoordinatorWindow::sendServer(QHostAddress &addr, int port)
 void CoordinatorWindow::addServer(ServerData *data, QHostAddress &senderAddr, int senderPort)
 {
 
-    QString id = data->getAddress().toString() + ":" + QString::number(senderPort);
+    QString id = data->getAddress().toString() + ":" + QString::number(data->getPort());
 
     // if the server already exists, clear everything we know about it
     if(_serverList.contains(id)) {
@@ -219,6 +219,8 @@ void CoordinatorWindow::addServer(ServerData *data, QHostAddress &senderAddr, in
     } else {
         _channelMap[id] = QList<ChannelData *>();
     }
+
+    ui->list_servers->addItem(id);
 
     udpSend(senderAddr, senderPort, _parser.make_OK());
 
