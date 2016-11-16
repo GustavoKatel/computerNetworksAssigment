@@ -263,10 +263,7 @@ QString ProtocolParser::make_JOIN(const QString &channelName)
 
 QString ProtocolParser::make_SERVER_ADD(const QHostAddress &addr, int port)
 {
-    QStringList list;
-    list.push_back(addr.toString());
-    list.push_back(QString::number(port));
-    return make(ProtocolMethod::SERVER_ADD, list);
+    return make(ProtocolMethod::SERVER_ADD, QStringList() << addr.toString() << QString::number(port));
 }
 
 QString ProtocolParser::make_GET_CHANNELS()
@@ -281,8 +278,5 @@ QString ProtocolParser::make_OK()
 
 QString ProtocolParser::make_SERVER_INFO(ServerData *server)
 {
-    QStringList list;
-    list.push_back(server->getAddress().toString());
-    list.push_back(QString::number(server->getPort()));
-    return make(ProtocolMethod::SERVER_INFO, list);
+    return make(ProtocolMethod::SERVER_INFO, QStringList() << server->getAddress().toString() << QString::number(server->getPort()));
 }
