@@ -259,7 +259,7 @@ void CoordinatorWindow::join(QHostAddress &addr, int port)
         for(; it!=_channelMap.end(); it++) {
             for(auto chd : it.value()) {
                 if(chd->getName() == channel) {
-                    // TODO: do join
+                    udpSend(addr, port, _parser.make_CHANNEL_INFO(chd));
                     return;
                 }
             }
