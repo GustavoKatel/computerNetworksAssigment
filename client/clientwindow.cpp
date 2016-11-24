@@ -77,9 +77,15 @@ void ClientWindow::connectToCoordinator()
                     &ClientWindow::server_info
                     );
 
-            log(QString(tr("Quering server from: %1:%2")).arg(_coordinatorAddr.toString(), QString::number(_coordinatorPort)));
+            connect(_coordinatorClient,
+                    &CoordinatorClient::channelInfo,
+                    this,
+                    &ClientWindow::channel_info
+                    );
 
-            _coordinatorClient->getServer();
+            log(QString(tr("Searching for channels from: %1:%2")).arg(_coordinatorAddr.toString(), QString::number(_coordinatorPort)));
+
+            _coordinatorClient->getChannels();
         }
 
         // always delete this dialog
@@ -176,6 +182,23 @@ void ClientWindow::server_info(QList<ServerData *> servers)
         QString line = "Got server: ";
 
         line += server->getAddress().toString() + ":" + QString::number(server->getPort());
+
+        log(line);
+    }
+}
+
+void ClientWindow::channel_info(QList<ChannelData *> channels)
+{
+    qDebug() << "channel_info";
+    for(auto channel : channels) {
+        QString line = "Got channel: ";
+
+        line += channel->getName() +
+                " (" +
+                channel->getAddress().toString() +
+                ":" +
+                QString::number(channel->getPort()) +
+                ")";
 
         log(line);
     }

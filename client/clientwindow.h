@@ -25,6 +25,8 @@ private slots:
 
     void server_info(QList<ServerData *> servers);
 
+    void channel_info(QList<ChannelData *> channels);
+
     void on_le_text_returnPressed();
 
     void on_toolButton_clicked();

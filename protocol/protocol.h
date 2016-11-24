@@ -9,7 +9,7 @@
 #include "dataclass/d_channel.h"
 
 enum ProtocolMethod {
-    GET_SERVER = 0, // client->coord
+    GET_SERVER = 0, // client->coord (DEPRECATED)
     JOIN, // client->coord
     SERVER_ADD, // server->coord
     SERVER_INFO, // coord->client (response to QUERY_SERVER)
@@ -65,6 +65,10 @@ public:
     QString make_CHANNEL_INFO(ChannelData * channel);
     QString make_CHANNEL_INFO(const QList<ChannelData *> &channels);
 
+    /**
+     * @brief make_GET_SERVER (DEPRECATED)
+     * @return
+     */
     QString make_GET_SERVER();
 
     QString make_JOIN(const QString &channelName);

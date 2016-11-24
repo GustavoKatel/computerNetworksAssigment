@@ -267,12 +267,12 @@ void CoordinatorWindow::join(QHostAddress &addr, int port)
 
         ServerData *server = _serverList.values().at(qrand() % _serverList.size());
         QString serverId = server->getAddress().toString()+":"+QString::number(server->getPort());
-        ChannelData *newChannel = new ChannelData(channel);
+        ChannelData *newChannel = new ChannelData(channel, server->getAddress(), server->getPort());
         _channelMap[serverId].append(newChannel);
 
         QTreeWidgetItem *channelNode = new QTreeWidgetItem(_serverTreeMap[serverId]);
         channelNode->setText(0, channel);
-        // TODO: do join
+        udpSend(addr, port, _parser.make_CHANNEL_INFO(newChannel));
 
     }
 }

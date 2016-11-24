@@ -3,17 +3,17 @@
 #include "utils.h"
 
 #define REGEX_QUERY_SERVER "^GET SERVER$"
-#define REGEX_SERVER_ADD "^SERVER ADD ([\\.0-9:\\[\\]]+) (\\d+)$"
+#define REGEX_SERVER_ADD "^SERVER ADD ([a-zA-Z0-9\\:\\.]+) (\\d+)$"
 #define REGEX_JOIN "^JOIN (\\w+)$"
 #define REGEX_SERVER_INFO "^SERVER INFO (.+) (\\d+)$"
 #define REGEX_GET_CHANNELS "^GET CHANNELS$"
-#define REGEX_CHANNEL_INFO "^CHANNEL INFO (\\w+)$"
+#define REGEX_CHANNEL_INFO "^CHANNEL INFO (\\w+) ([a-zA-Z0-9\\:\\.]+) (\\d+)$"
 #define REGEX_OK "^OK$"
 
 #define FMT_SERVER_ADD "SERVER ADD %1 %2"
 #define FMT_JOIN "JOIN %1"
 #define FMT_SERVER_INFO "SERVER INFO %1 %2"
-#define FMT_CHANNEL_INFO "CHANNEL INFO %1"
+#define FMT_CHANNEL_INFO "CHANNEL INFO %1 %2 %3"
 
 ProtocolParser::ProtocolParser(QObject *parent) :
     QObject(parent),
@@ -119,7 +119,11 @@ QString ProtocolParser::makeBatch(const QList<ProtocolMethod> &methods, const QL
 
 QString ProtocolParser::make_CHANNEL_INFO(ChannelData * channel)
 {
-    return make(ProtocolMethod::CHANNEL_INFO, QStringList(channel->getName()));
+    return make(ProtocolMethod::CHANNEL_INFO,
+                QStringList() << channel->getName()
+                                << channel->getAddress().toString()
+                                << QString::number(channel->getPort())
+                );
 }
 
 QString ProtocolParser::make_CHANNEL_INFO(const QList<ChannelData *> &channels)
@@ -238,11 +242,11 @@ const QList<ChannelData *> &ProtocolParser::getChannels()
         argLine = _args[i];
         method = _methods[i];
 
-        if(method!=ProtocolMethod::CHANNEL_INFO || argLine.length() != 2) {
+        if(method!=ProtocolMethod::CHANNEL_INFO || argLine.length() != 4) {
             continue;
         }
 
-        ChannelData *channel = new ChannelData(argLine[1]);
+        ChannelData *channel = new ChannelData(argLine[1], QHostAddress(argLine[2]), argLine[3].toInt());
         _channels.push_back(channel);
 
     }
