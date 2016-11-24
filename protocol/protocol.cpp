@@ -132,7 +132,7 @@ QString ProtocolParser::make_CHANNEL_INFO(const QList<ChannelData *> &channels)
 
     for(auto channel : channels) {
 
-        res += make_CHANNEL_INFO(channel);
+        res += make_CHANNEL_INFO(channel) + "\n";
 
     }
 

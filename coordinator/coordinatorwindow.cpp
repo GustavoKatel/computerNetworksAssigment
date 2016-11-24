@@ -238,8 +238,8 @@ void CoordinatorWindow::updateServerListView()
 void CoordinatorWindow::sendChannels(QHostAddress &addr, int port)
 {
     QString data = "";
-    for(auto channels : _channelMap.values()) {
-        data += _parser.make_CHANNEL_INFO(channels);
+    for(auto channelLists : _channelMap.values()) {
+        data += _parser.make_CHANNEL_INFO(channelLists) + "\n";
     }
 
     udpSend(addr, port, data);
