@@ -3,7 +3,7 @@
 #include "utils.h"
 
 #define REGEX_QUERY_SERVER "^GET SERVER$"
-#define REGEX_NOTIFY_CHANNELS "^NOTIFY CHANNELS ([a-zA-Z0-9\\:\\.]+) (\\d+) (\\w+)+$"
+#define REGEX_NOTIFY_CHANNELS "^NOTIFY CHANNELS ([a-zA-Z0-9\\:\\.]+) (\\d+) ([\\w\\s]+)+$"
 #define REGEX_JOIN "^JOIN (\\w+)$"
 #define REGEX_SERVER_INFO "^SERVER INFO (.+) (\\d+)$"
 #define REGEX_GET_CHANNELS "^GET CHANNELS$"
@@ -167,7 +167,7 @@ bool ProtocolParser::parseLine(const QString &data)
         res = true;
 
     } else if(Utils::testRegex(REGEX_NOTIFY_CHANNELS, data)) {
-        method = SERVER_ADD;
+        method = NOTIFY_CHANNELS;
         args = Utils::testRegexAndCapture(REGEX_NOTIFY_CHANNELS, data);
         res = true;
 
