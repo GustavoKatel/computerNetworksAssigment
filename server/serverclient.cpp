@@ -17,11 +17,11 @@ ServerClient::ServerClient(const QHostAddress &host, int port, QObject *parent) 
             this, &ServerClient::on_readyRead);
 }
 
-void ServerClient::sendMessage(const QString &message)
+void ServerClient::sendMessage(const QString nickname, const QString &message)
 {
-    qDebug() << "sending message " + message;
+    QString formattedMessage = nickname + "|" + message + "\n";
 
-    this->write(message.toUtf8()+"\n");
+    this->write(formattedMessage.toUtf8());
     this->waitForBytesWritten();
 }
 
@@ -29,8 +29,21 @@ void ServerClient::on_readyRead()
 {
     if(this->canReadLine())
     {
-        QByteArray byteArray = this->readLine();
+        QString fullMessage = this->readLine();
 
-        emit messageReceived(byteArray);
+        QString nickname;
+        QString message;
+
+        if (fullMessage.contains("|")) {
+            // If message contains (it should) the nickname of the sender
+            nickname = fullMessage.split("|")[0];
+            message = fullMessage.split("|")[1];
+        } else {
+            // Otherwise, handle it properly (useful for when debugging with nc)
+            nickname = "SYSTEM";
+            message = fullMessage;
+        }
+
+        emit messageReceived(nickname, message);
     }
 }

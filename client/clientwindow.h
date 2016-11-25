@@ -61,6 +61,8 @@ private:
 
     void processCommand(const QString &line);
 
+    void displayMessage(const QString &displayMessage, const QString &text);
+
     void sendText(const QString &text);
 };
 

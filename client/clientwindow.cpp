@@ -51,13 +51,13 @@ void ClientWindow::initServer()
 {
     _serverClient = new ServerClient(QHostAddress("192.168.0.59"), 1234, this);
 
-    _serverClient->sendMessage("connected to server");
+    // _serverClient->sendMessage("SYSTEM", "connected to server");
 
-    connect(_serverClient, &ServerClient::messageReceived, this, [this](const QString &message) {
-        qDebug() << "message received";
-
-        ui->tb_chat->append(message);
-    });
+    connect(_serverClient, &ServerClient::messageReceived, this,
+            [this](const QString &nickname, const QString &message) {
+                displayMessage(nickname, message);
+            }
+    );
 }
 
 void ClientWindow::connectToCoordinator()
@@ -179,12 +179,21 @@ void ClientWindow::on_toolButton_clicked()
     ui->le_text->clear();
 }
 
+void ClientWindow::displayMessage(const QString &nickname, const QString &text)
+{
+    QString color = "red";
+
+    if (nickname == ui->le_nickname->text()) {
+        color = "blue";
+    }
+
+    ui->tb_chat->append(QString(tr("<font color=\"%1\">[%2]</font>: %3"))
+                        .arg(color, nickname, text));
+}
+
 void ClientWindow::sendText(const QString &text)
 {
-    _serverClient->sendMessage(text);
-
-    ui->tb_chat->append(QString(tr("<font color=\"red\">[%1]</font>: %2"))
-                        .arg(ui->le_nickname->text(), text));
+    _serverClient->sendMessage(ui->le_nickname->text(), text);
 }
 
 void ClientWindow::on_tb_chat_anchorClicked(const QUrl &arg1)

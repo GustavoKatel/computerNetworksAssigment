@@ -14,10 +14,10 @@ class ServerClient : public QTcpSocket
 public:
     explicit ServerClient(const QHostAddress &host, int port, QObject *parent = 0);
 
-    void sendMessage(const QString &message);
+    void sendMessage(const QString nickname, const QString &message);
 
 signals:
-    void messageReceived(const QString &message);
+    void messageReceived(const QString nickname, const QString &message);
 
 private slots:
     void on_readyRead();
