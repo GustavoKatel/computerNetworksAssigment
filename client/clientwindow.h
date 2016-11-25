@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QTcpSocket>
 #include <QUdpSocket>
+#include <QHash>
+#include <QListWidgetItem>
 
 #include "client/connecttocoordinatordialog.h"
 #include "coordinator/coordinatorclient.h"
@@ -23,8 +25,6 @@ public:
 private slots:
     void coordinator_changed_state(QAbstractSocket::SocketState state);
 
-    void server_info(QList<ServerData *> servers);
-
     void channel_info(QList<ChannelData *> channels);
 
     void on_le_text_returnPressed();
@@ -32,6 +32,8 @@ private slots:
     void on_toolButton_clicked();
 
     void on_tb_chat_anchorClicked(const QUrl &arg1);
+
+    void on_list_channels_itemDoubleClicked(QListWidgetItem *item);
 
 private:
     Ui::ClientWindow *ui;
@@ -44,6 +46,8 @@ private:
     int _coordinatorPort;
 
     ConnectToCoordinatorDialog *_connectToCoordinatorDialog;
+
+    QList<ChannelData *> _knownChannels;
 
     void log(const QString &msg);
 

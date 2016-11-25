@@ -72,12 +72,6 @@ void ClientWindow::connectToCoordinator()
                     );
 
             connect(_coordinatorClient,
-                    &CoordinatorClient::serverInfo,
-                    this,
-                    &ClientWindow::server_info
-                    );
-
-            connect(_coordinatorClient,
                     &CoordinatorClient::channelInfo,
                     this,
                     &ClientWindow::channel_info
@@ -176,17 +170,6 @@ void ClientWindow::on_tb_chat_anchorClicked(const QUrl &arg1)
     }
 }
 
-void ClientWindow::server_info(QList<ServerData *> servers)
-{
-    for(auto server : servers) {
-        QString line = "Got server: ";
-
-        line += server->getAddress().toString() + ":" + QString::number(server->getPort());
-
-        log(line);
-    }
-}
-
 void ClientWindow::channel_info(QList<ChannelData *> channels)
 {
     qDebug() << "channel_info";
@@ -201,5 +184,22 @@ void ClientWindow::channel_info(QList<ChannelData *> channels)
                 ")";
 
         log(line);
+
+        ui->list_channels->clear();
+        _knownChannels.clear();
+
+        for(auto channel : channels) {
+            _knownChannels.append(channel);
+            ui->list_channels->addItem(channel->getName());
+        }
+
     }
+
+}
+
+
+void ClientWindow::on_list_channels_itemDoubleClicked(QListWidgetItem *item)
+{
+    int index = ui->list_channels->row(item);
+    qDebug() << _knownChannels[index]->getName();
 }
