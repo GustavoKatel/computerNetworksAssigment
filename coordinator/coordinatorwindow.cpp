@@ -202,6 +202,8 @@ void CoordinatorWindow::registerChannels(QHostAddress &senderAddr, int senderPor
     QString id, host, port;
     for(auto argList : _parser.getArgs()) {
 
+        argList.removeFirst(); // remove line (first capture group)
+
         host = argList[0];
         port = argList[1];
         id = host + ":" + port;
@@ -213,7 +215,9 @@ void CoordinatorWindow::registerChannels(QHostAddress &senderAddr, int senderPor
         // if the server already exists, clear everything we know about it
         if(_serverList.contains(id)) {
             for(int i=0;i<_serverTreeMap[id]->childCount();i++) {
-                delete _serverTreeMap[id]->child(i);
+                QTreeWidgetItem *child = _serverTreeMap[id]->child(i);
+                _serverTreeMap[id]->removeChild(child);
+                delete child;
             }
         } else {
             _serverList[id] = new ServerData(QHostAddress(host), port.toInt());
