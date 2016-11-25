@@ -4,8 +4,14 @@
 #include <QMainWindow>
 #include <QtNetwork>
 
+#include "client/connecttocoordinatordialog.h"
+
 #include "server/channel.h"
 #include "server/channelslist.h"
+
+#include "protocol/protocol.h"
+
+#include "coordinator/coordinatorclient.h"
 
 namespace Ui {
 class ServerWindow;
@@ -28,6 +34,25 @@ private:
     QTcpServer *tcpServer;
     QDataStream in;
 
+    ProtocolParser _parser;
+
+    // Coordinator
+    CoordinatorClient *_coordinatorClient;
+    QHostAddress _coordinatorAddr;
+    int _coordinatorPort;
+
+    ConnectToCoordinatorDialog *_connectToCoordinatorDialog;
+
+    // Timer
+    QTimer *_notifyChannelsTimer;
+
+    void initCoordinator();
+    void connectToCoordinator();
+
+    // Called after we receive OK from coordinator
+    // Draw the GUI and start everything
+    void startServer();
+
     void startTCPServer();
     void on_readyRead(QTcpSocket *tcpSocket);
     void handleConnection();
@@ -35,6 +60,7 @@ private:
     void createChannel(QString channelName);
     void addUserToChannel(QTcpSocket *user, QString channelName);
 
+    void notifyCurrentChannels();
     void destroyChannel();
 
     void log(QString message);

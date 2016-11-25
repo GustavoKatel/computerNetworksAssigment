@@ -27,6 +27,8 @@ public:
 
     void getChannels();
 
+    void notifyChannels(QList<QString> channelsName);
+
 signals:
     void ack();
 

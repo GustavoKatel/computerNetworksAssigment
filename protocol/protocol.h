@@ -12,6 +12,7 @@ enum ProtocolMethod {
     GET_SERVER = 0, // client->coord (DEPRECATED)
     JOIN, // client->coord
     SERVER_ADD, // server->coord
+    NOTIFY_CHANNELS, // server->cord
     SERVER_INFO, // coord->client (response to QUERY_SERVER)
     GET_CHANNELS, // client->coord
     CHANNEL_INFO, // coord->client
@@ -74,6 +75,8 @@ public:
     QString make_JOIN(const QString &channelName);
 
     QString make_SERVER_ADD(const QHostAddress &addr, int port);
+
+    QString make_NOTIFY_CHANNELS(QList<QString> channelsName);
 
     QString make_SERVER_INFO(ServerData *server);
 

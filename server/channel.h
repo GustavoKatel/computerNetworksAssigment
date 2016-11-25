@@ -25,6 +25,7 @@ private:
     QWidget* initializeTab(QTabWidget *tabParent);
 
     void on_readyRead(QTcpSocket *tcpSocket);
+    void on_disconnected(QTcpSocket *tcpSocket);
 
     void log(QString message);
 };

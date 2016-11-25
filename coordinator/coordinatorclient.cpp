@@ -75,6 +75,11 @@ void CoordinatorClient::getChannels()
     udpSend(_parser.make_GET_CHANNELS());
 }
 
+void CoordinatorClient::notifyChannels(QList<QString> channelsName)
+{
+    udpSend(_parser.make_NOTIFY_CHANNELS(channelsName));
+}
+
 void CoordinatorClient::udpSend(const QString &data)
 {
     this->writeDatagram(data.toStdString().c_str(), _addr, _port);

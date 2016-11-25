@@ -12,14 +12,13 @@ ChannelData::ChannelData(const QString &name, QTabWidget *tabParent) : QObject()
 QWidget* ChannelData::initializeTab(QTabWidget *tabParent)
 {
     // Initialize tab
-    QWidget *tab = new QWidget();
+    QWidget *tab = new QWidget(tabParent);
     tab->setObjectName(name);
 
     // Create text area
     textEditLog = new QPlainTextEdit();
     textEditLog->setObjectName(QStringLiteral("textEditLog"));
     textEditLog->setEnabled(false);
-    textEditLog->appendPlainText("lol");
 
     // Create layout that will contain text area
     QVBoxLayout *layout = new QVBoxLayout;
@@ -49,6 +48,9 @@ void ChannelData::addUser(QTcpSocket *user)
     // Add handler to new incoming messages
     connect(user, &QIODevice::readyRead,
             this, [this, user]{ on_readyRead(user); });
+
+    connect(user, &QTcpSocket::disconnected,
+            this, [this, user]{ on_disconnected(user); });
 }
 
 void ChannelData::sendMessage(QString message)
@@ -77,4 +79,12 @@ void ChannelData::on_readyRead(QTcpSocket *tcpSocket)
         QByteArray biteArray = tcpSocket->readLine();
         sendMessage(biteArray);
     }
+}
+
+void ChannelData::on_disconnected(QTcpSocket *tcpSocket)
+{
+    users.removeOne(tcpSocket);
+
+    sendMessage("Some user disconnected");
+    log("Some user disconnected");
 }
