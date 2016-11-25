@@ -58,14 +58,6 @@ void  CoordinatorWindow::processDatagram(QHostAddress &senderAddr, int senderPor
 
     _parser.parse(dataStr);
 
-    if(_parser.getMethods().contains(ProtocolMethod::GET_SERVER)) {
-        sendServer(senderAddr, senderPort);
-    }
-
-    if(_parser.getMethods().contains(ProtocolMethod::JOIN)) {
-        join(senderAddr, senderPort);
-    }
-
     if(_parser.getMethods().contains(ProtocolMethod::GET_CHANNELS)) {
         sendChannels(senderAddr, senderPort);
     }
@@ -183,19 +175,6 @@ void CoordinatorWindow::udpSend(QHostAddress &addr, int port, const QString &dat
 
 }
 
-void CoordinatorWindow::sendServer(QHostAddress &addr, int port)
-{
-    if(_serverList.size()==0) return;
-
-    // TODO: send a random server?
-    ServerData *server = _serverList.values().at(qrand() % _serverList.size());
-
-    QString data = _parser.make_SERVER_INFO(server);
-
-    this->udpSend(addr, port, data);
-
-}
-
 void CoordinatorWindow::registerChannels(QHostAddress &senderAddr, int senderPort)
 {
 
@@ -208,9 +187,7 @@ void CoordinatorWindow::registerChannels(QHostAddress &senderAddr, int senderPor
         port = argList[1];
         id = host + ":" + port;
 
-        // get just the channels
-        argList.removeFirst(); // remove host
-        argList.removeFirst(); // remove port
+        QStringList channels = argList[2].split(" ");
 
         // if the server already exists, clear everything we know about it
         if(_serverList.contains(id)) {
@@ -234,8 +211,10 @@ void CoordinatorWindow::registerChannels(QHostAddress &senderAddr, int senderPor
             _channelMap[id] = QList<ChannelData *>();
         }
 
-        for(auto channelName : argList) {
+        for(auto channelName : channels) {
             _channelMap[id].append(new ChannelData(channelName, QHostAddress(host), port.toInt()));
+            QTreeWidgetItem *channelNode = new QTreeWidgetItem(_serverTreeMap[id]);
+            channelNode->setText(0, channelName);
         }
 
     }
@@ -259,39 +238,4 @@ void CoordinatorWindow::sendChannels(QHostAddress &addr, int port)
     }
 
     udpSend(addr, port, data);
-}
-
-void CoordinatorWindow::join(QHostAddress &addr, int port)
-{
-    if(_serverList.size()==0) return;
-
-    QString channelName = "";
-    // iterate over the list of arg list
-    for(auto args : _parser.getArgs()) {
-        if(args.size() < 2) continue;
-
-        channelName = args[1];
-
-        // check if channel already existis
-        auto it = _channelMap.begin();
-        for(; it!=_channelMap.end(); it++) {
-            for(auto chd : it.value()) {
-                if(chd->getName() == channelName) {
-                    udpSend(addr, port, _parser.make_CHANNEL_INFO(chd));
-                    return;
-                }
-            }
-        }
-
-        // otherwise create the channel on a random server
-        ServerData *server = _serverList.values().at(qrand() % _serverList.size());
-        QString serverId = server->getAddress().toString()+":"+QString::number(server->getPort());
-        ChannelData *newChannel = new ChannelData(channelName, server->getAddress(), server->getPort());
-        _channelMap[serverId].append(newChannel);
-
-        QTreeWidgetItem *channelNode = new QTreeWidgetItem(_serverTreeMap[serverId]);
-        channelNode->setText(0, channelName);
-        udpSend(addr, port, _parser.make_CHANNEL_INFO(newChannel));
-
-    }
 }

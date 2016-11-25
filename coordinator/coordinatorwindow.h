@@ -51,10 +51,8 @@ private:
     void updateServerListView();
 
     // protocol functions
-    void sendServer(QHostAddress &addr, int port);
     void registerChannels(QHostAddress &senderAddr, int senderPort);
     void sendChannels(QHostAddress &addr, int port);
-    void join(QHostAddress &addr, int port);
 
 };
 
