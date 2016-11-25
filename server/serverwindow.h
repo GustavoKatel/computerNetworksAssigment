@@ -27,6 +27,8 @@ public:
 
 private slots:
 
+    void on_btnStartServer_clicked();
+
 private:
     Ui::ServerWindow *ui;
     ChannelsList *channelsList;
@@ -46,13 +48,12 @@ private:
     // Timer
     QTimer *_notifyChannelsTimer;
 
+    void initializeTextFields();
+
     void initCoordinator();
     void connectToCoordinator();
 
-    // Called after we receive OK from coordinator
-    // Draw the GUI and start everything
     void startServer();
-
     void startTCPServer();
     void on_readyRead(QTcpSocket *tcpSocket);
     void handleConnection();

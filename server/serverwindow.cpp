@@ -5,6 +5,8 @@
 #include <QtWidgets>
 #include <QtNetwork>
 
+#include <utils.h>
+
 ServerWindow::ServerWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ServerWindow), 
@@ -12,7 +14,8 @@ ServerWindow::ServerWindow(QWidget *parent) :
     _coordinatorClient(nullptr),
     _notifyChannelsTimer(nullptr)
 {
-    startServer();
+    ui->setupUi(this);
+    initializeTextFields();
 
     connectToCoordinator();
 }
@@ -25,9 +28,6 @@ ServerWindow::~ServerWindow()
 // TODO: Code almost duplicated from Client
 void ServerWindow::connectToCoordinator()
 {
-    // hide main window
-    this->hide();
-
     // always create a dialog, since it deletes itself when closed. See below
     _connectToCoordinatorDialog = new ConnectToCoordinatorDialog(this);
 
@@ -37,13 +37,6 @@ void ServerWindow::connectToCoordinator()
         if(result) {
             _coordinatorAddr = QHostAddress(_connectToCoordinatorDialog->getAddress());
             _coordinatorPort = _connectToCoordinatorDialog->getPort();
-
-            // memory safety first :p
-            if(_coordinatorClient) {
-                _coordinatorClient->close();
-                _coordinatorClient->deleteLater();
-                _coordinatorClient = nullptr;
-            }
 
             _coordinatorClient = new CoordinatorClient(_coordinatorAddr, _coordinatorPort, this);
 
@@ -67,8 +60,6 @@ void ServerWindow::connectToCoordinator()
 // Create default channel and start TCP server
 void ServerWindow::startServer()
 {
-    ui->setupUi(this);
-
     // Create channels list
     channelsList = new ChannelsList();
 
@@ -83,32 +74,16 @@ void ServerWindow::startTCPServer()
 {
     tcpServer = new QTcpServer(this);
 
-    if (!tcpServer->listen(QHostAddress::Any, 1234)) {
-        QMessageBox::critical(this, tr("Fortune Server"),
+    QHostAddress hostAddress = QHostAddress(ui->textEditIP->toPlainText());
+    int port = ui->textEditPort->toPlainText().toInt();
+
+    if (!tcpServer->listen(hostAddress, port)) {
+        QMessageBox::critical(this, tr("Error"),
                               tr("Unable to start the server: %1.")
                               .arg(tcpServer->errorString()));
         close();
         return;
     }
-
-    QString ipAddress;
-    QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
-    // use the first non-localhost IPv4 address
-    for (int i = 0; i < ipAddressesList.size(); ++i) {
-        if (ipAddressesList.at(i) != QHostAddress::LocalHost &&
-            ipAddressesList.at(i).toIPv4Address()) {
-            ipAddress = ipAddressesList.at(i).toString();
-            break;
-        }
-    }
-
-    // if we did not find one, use IPv4 localhost
-    if (ipAddress.isEmpty())
-        ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
-
-    // Update fields with current IP and Port
-    ui->textEditIP->setText(ipAddress);
-    ui->textEditPort->setText(QString::number(tcpServer->serverPort()));
 
     connect(tcpServer, &QTcpServer::newConnection, this,
             &ServerWindow::handleConnection);
@@ -174,5 +149,25 @@ void ServerWindow::addUserToChannel(QTcpSocket *user, QString channelName)
 void ServerWindow::notifyCurrentChannels() {
     // log("Notifying coordinator of channels");
 
-    _coordinatorClient->notifyChannels(tcpServer->serverAddress(), tcpServer->serverPort(), channelsList->keys());
+    if (tcpServer) {
+        _coordinatorClient->notifyChannels(tcpServer->serverAddress(), tcpServer->serverPort(), channelsList->keys());
+    }
+}
+
+void ServerWindow::on_btnStartServer_clicked()
+{
+    startServer();
+
+    this->ui->btnStartServer->setEnabled(false);
+    this->ui->textEditPort->setEnabled(false);
+}
+
+void ServerWindow::initializeTextFields()
+{
+    QHostAddress hostAddress = Utils::getFirstNonLocalhost(true);
+    int port = 1234;
+
+    // Update fields with current IP and Port
+    ui->textEditIP->setText(hostAddress.toString());
+    ui->textEditPort->setText(QString::number(port));
 }
