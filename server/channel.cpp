@@ -1,8 +1,7 @@
 #include "channel.h"
 #include <QVBoxLayout>
 
-Channel::Channel(const QString &name, QTabWidget *tabParent) :
-    QObject()
+ChannelData::ChannelData(const QString &name, QTabWidget *tabParent) : QObject()
 {
     this->name = name;
     this->users = QList<QTcpSocket*>();
@@ -10,7 +9,7 @@ Channel::Channel(const QString &name, QTabWidget *tabParent) :
     this->tab = initializeTab(tabParent);
 }
 
-QWidget* Channel::initializeTab(QTabWidget *tabParent)
+QWidget* ChannelData::initializeTab(QTabWidget *tabParent)
 {
     // Initialize tab
     QWidget *tab = new QWidget(tabParent);
@@ -36,7 +35,7 @@ QWidget* Channel::initializeTab(QTabWidget *tabParent)
     return tab;
 }
 
-void Channel::addUser(QTcpSocket *user)
+void ChannelData::addUser(QTcpSocket *user)
 {
     // Notify all users that someone joined the channel
     sendMessage("User joined the channel");
@@ -52,7 +51,7 @@ void Channel::addUser(QTcpSocket *user)
             this, [this, user]{ on_readyRead(user); });
 }
 
-void Channel::sendMessage(QString message)
+void ChannelData::sendMessage(QString message)
 {
     QListIterator<QTcpSocket*> iterator(users);
     while (iterator.hasNext()) {
@@ -64,14 +63,14 @@ void Channel::sendMessage(QString message)
 
 }
 
-void Channel::log(QString message)
+void ChannelData::log(QString message)
 {
     QDateTime currentTime = QDateTime::currentDateTime();
     textEditLog->appendPlainText(
                 currentTime.toString() + ": " + message.trimmed());
 }
 
-void Channel::on_readyRead(QTcpSocket *tcpSocket)
+void ChannelData::on_readyRead(QTcpSocket *tcpSocket)
 {
     if(tcpSocket->canReadLine())
     {

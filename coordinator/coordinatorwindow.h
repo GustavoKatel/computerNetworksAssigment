@@ -4,8 +4,11 @@
 #include <QMainWindow>
 #include <QUdpSocket>
 #include <QHash>
+#include <QTreeWidgetItem>
 
-#include "coordinator/server.h"
+#include "dataclass/d_server.h"
+#include "dataclass/d_channel.h"
+#include "protocol/protocol.h"
 
 namespace Ui {
 class CoordinatorWindow;
@@ -33,7 +36,11 @@ private:
 
     QUdpSocket *_socket;
 
-    QHash<QString, Server *> _serverList;
+    QHash<QString, ServerData *> _serverList;
+    QHash<QString, QTreeWidgetItem *> _serverTreeMap;
+    QHash<QString, QList<ChannelData *>> _channelMap;
+
+    ProtocolParser _parser;
 
     void processDatagram(QHostAddress &senderAddr, int senderPort, QByteArray *data);
 
@@ -45,7 +52,9 @@ private:
 
     // protocol functions
     void sendServer(QHostAddress &addr, int port);
-    void addServer(QString data, QHostAddress &senderAddr, int senderPort);
+    void addServer(ServerData *data, QHostAddress &senderAddr, int senderPort);
+    void sendChannels(QHostAddress &addr, int port);
+    void join(QHostAddress &addr, int port);
 
 };
 

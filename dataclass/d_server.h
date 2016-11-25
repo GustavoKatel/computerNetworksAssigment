@@ -3,10 +3,10 @@
 
 #include <QHostAddress>
 
-class Server {
+class ServerData {
 
 public:
-    Server(QHostAddress &addr, int port, int totalClients=0);
+    ServerData(const QHostAddress &addr, int port, int totalClients=0);
 
     /**
      * @brief getAddress Getter: Server address

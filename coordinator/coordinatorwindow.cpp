@@ -6,13 +6,11 @@
 
 #include "utils.h"
 
-#define CT_REGEX_GET_SERVER "^GET SERVER$"
-#define CT_REGEX_ADD_SERVER "^SERVER ADD ([\\.0-9:\\[\\]]+) (\\d+)$"
-
 CoordinatorWindow::CoordinatorWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::CoordinatorWindow),
-    _socket(nullptr)
+    _socket(nullptr),
+    _parser(this)
 {
     ui->setupUi(this);
 
@@ -51,19 +49,32 @@ void CoordinatorWindow::read_pending_datagrams()
 void  CoordinatorWindow::processDatagram(QHostAddress &senderAddr, int senderPort, QByteArray *data)
 {
     QString dataStr(*data);
-    // removes eol
-    dataStr.remove(QRegExp("[\\n\\r]*$"));
 
     QString id = senderAddr.toString()+":" + QString::number(senderPort);
 
     QString line = "Recv from: " + id + " " + " data: " + dataStr;
+    line.remove(QRegExp("[\\n\\r]*$"));
     log( line );
 
-    // test regex
-    if(Utils::testRegex(CT_REGEX_GET_SERVER, dataStr)) {
-        this->sendServer(senderAddr, senderPort);
-    } else if( Utils::testRegex(CT_REGEX_ADD_SERVER, dataStr) ) {
-        this->addServer(dataStr, senderAddr, senderPort);
+    _parser.parse(dataStr);
+
+    if(_parser.getMethods().contains(ProtocolMethod::GET_SERVER)) {
+        sendServer(senderAddr, senderPort);
+    }
+
+    if(_parser.getMethods().contains(ProtocolMethod::JOIN)) {
+        join(senderAddr, senderPort);
+    }
+
+    if(_parser.getMethods().contains(ProtocolMethod::SERVER_ADD)) {
+
+        for(auto server : _parser.getServers()) {
+            addServer(server, senderAddr, senderPort);
+        }
+    }
+
+    if(_parser.getMethods().contains(ProtocolMethod::GET_CHANNELS)) {
+        sendChannels(senderAddr, senderPort);
     }
 
 }
@@ -177,36 +188,91 @@ void CoordinatorWindow::udpSend(QHostAddress &addr, int port, const QString &dat
 
 void CoordinatorWindow::sendServer(QHostAddress &addr, int port)
 {
-    // TODO: send a random server?
-//    Server *server = _serverList.begin().value();
-//    QString data = "SERVER " + server->getAddress().toString() + " " + server->getPort();
+    if(_serverList.size()==0) return;
 
-    QString data = "SERVER ";
+    // TODO: send a random server?
+    ServerData *server = _serverList.values().at(qrand() % _serverList.size());
+
+    QString data = _parser.make_SERVER_INFO(server);
 
     this->udpSend(addr, port, data);
 
 }
 
-void CoordinatorWindow::addServer(QString data, QHostAddress &senderAddr, int senderPort)
+void CoordinatorWindow::addServer(ServerData *data, QHostAddress &senderAddr, int senderPort)
 {
-    QStringList captures = Utils::testRegexAndCapture(CT_REGEX_ADD_SERVER, data);
-    QString ip = captures.at(1);
-    QString port = captures.at(2);
 
-    log("Adding server: " + ip + ":" + port);
+    QString id = data->getAddress().toString() + ":" + QString::number(data->getPort());
 
-    QHostAddress addr(ip);
-    Server *server = new Server(addr, port.toInt());
-    _serverList[ip+":"+port] = server;
+    // if the server already exists, clear everything we know about it
+    if(_serverList.contains(id)) {
+        delete _serverList[id];
+        for(int i=0;i<_serverTreeMap[id]->childCount();i++) {
+            delete _serverTreeMap[id]->child(i);
+        }
+        delete _serverTreeMap[id];
+    }
 
-    ui->list_servers->addItem(ip+":"+port);
+    _serverList[id] = data;
+    _serverTreeMap[id] = new QTreeWidgetItem(ui->tree_servers);
+    _serverTreeMap[id]->setText(0, id);
 
-    udpSend(senderAddr, senderPort, "OK");
+    if(_channelMap.contains(id)) {
+        for(auto ch : _channelMap[id]) {
+            delete ch;
+        }
+        _channelMap[id].clear();
+    } else {
+        _channelMap[id] = QList<ChannelData *>();
+    }
+
+    udpSend(senderAddr, senderPort, _parser.make_OK());
 
 }
 
 void CoordinatorWindow::updateServerListView()
 {
-    ui->list_servers->clear();
-    ui->list_servers->addItems(_serverList.keys());
+
+}
+
+void CoordinatorWindow::sendChannels(QHostAddress &addr, int port)
+{
+    QString data = "";
+    for(auto channelLists : _channelMap.values()) {
+        data += _parser.make_CHANNEL_INFO(channelLists) + "\n";
+    }
+
+    udpSend(addr, port, data);
+}
+
+void CoordinatorWindow::join(QHostAddress &addr, int port)
+{
+    if(_serverList.size()==0) return;
+
+    QString channel = "";
+    for(auto args : _parser.getArgs()) {
+        if(args.size() < 2) continue;
+
+        channel = args[1];
+
+        auto it = _channelMap.begin();
+        for(; it!=_channelMap.end(); it++) {
+            for(auto chd : it.value()) {
+                if(chd->getName() == channel) {
+                    udpSend(addr, port, _parser.make_CHANNEL_INFO(chd));
+                    return;
+                }
+            }
+        }
+
+        ServerData *server = _serverList.values().at(qrand() % _serverList.size());
+        QString serverId = server->getAddress().toString()+":"+QString::number(server->getPort());
+        ChannelData *newChannel = new ChannelData(channel, server->getAddress(), server->getPort());
+        _channelMap[serverId].append(newChannel);
+
+        QTreeWidgetItem *channelNode = new QTreeWidgetItem(_serverTreeMap[serverId]);
+        channelNode->setText(0, channel);
+        udpSend(addr, port, _parser.make_CHANNEL_INFO(newChannel));
+
+    }
 }
