@@ -66,15 +66,12 @@ void  CoordinatorWindow::processDatagram(QHostAddress &senderAddr, int senderPor
         join(senderAddr, senderPort);
     }
 
-    if(_parser.getMethods().contains(ProtocolMethod::SERVER_ADD)) {
-
-        for(auto server : _parser.getServers()) {
-            addServer(server, senderAddr, senderPort);
-        }
-    }
-
     if(_parser.getMethods().contains(ProtocolMethod::GET_CHANNELS)) {
         sendChannels(senderAddr, senderPort);
+    }
+
+    if(_parser.getMethods().contains(ProtocolMethod::NOTIFY_CHANNELS)) {
+        registerChannels(senderAddr, senderPort);
     }
 
 }
@@ -199,32 +196,47 @@ void CoordinatorWindow::sendServer(QHostAddress &addr, int port)
 
 }
 
-void CoordinatorWindow::addServer(ServerData *data, QHostAddress &senderAddr, int senderPort)
+void CoordinatorWindow::registerChannels(QHostAddress &senderAddr, int senderPort)
 {
 
-    QString id = data->getAddress().toString() + ":" + QString::number(data->getPort());
+    QString id, host, port;
+    for(auto argList : _parser.getArgs()) {
 
-    // if the server already exists, clear everything we know about it
-    if(_serverList.contains(id)) {
-        delete _serverList[id];
-        for(int i=0;i<_serverTreeMap[id]->childCount();i++) {
-            delete _serverTreeMap[id]->child(i);
+        host = argList[0];
+        port = argList[1];
+        id = host + ":" + port;
+
+        // get just the channels
+        argList.removeFirst(); // remove host
+        argList.removeFirst(); // remove port
+
+        // if the server already exists, clear everything we know about it
+        if(_serverList.contains(id)) {
+            for(int i=0;i<_serverTreeMap[id]->childCount();i++) {
+                delete _serverTreeMap[id]->child(i);
+            }
+        } else {
+            _serverList[id] = new ServerData(QHostAddress(host), port.toInt());
+            _serverTreeMap[id] = new QTreeWidgetItem(ui->tree_servers);
+            _serverTreeMap[id]->setText(0, id);
         }
-        delete _serverTreeMap[id];
+
+        if(_channelMap.contains(id)) {
+            for(auto chd : _channelMap[id]) {
+                delete chd;
+            }
+            _channelMap[id].clear();
+        } else {
+            _channelMap[id] = QList<ChannelData *>();
+        }
+
+        for(auto channelName : argList) {
+            _channelMap[id].append(new ChannelData(channelName, QHostAddress(host), port.toInt()));
+        }
+
     }
 
-    _serverList[id] = data;
-    _serverTreeMap[id] = new QTreeWidgetItem(ui->tree_servers);
-    _serverTreeMap[id]->setText(0, id);
 
-    if(_channelMap.contains(id)) {
-        for(auto ch : _channelMap[id]) {
-            delete ch;
-        }
-        _channelMap[id].clear();
-    } else {
-        _channelMap[id] = QList<ChannelData *>();
-    }
 
     udpSend(senderAddr, senderPort, _parser.make_OK());
 

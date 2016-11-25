@@ -11,7 +11,7 @@
 enum ProtocolMethod {
     GET_SERVER = 0, // client->coord (DEPRECATED)
     JOIN, // client->coord
-    SERVER_ADD, // server->coord
+    SERVER_ADD, // server->coord (DEPRECATED)
     NOTIFY_CHANNELS, // server->cord
     SERVER_INFO, // coord->client (response to QUERY_SERVER)
     GET_CHANNELS, // client->coord
@@ -70,7 +70,7 @@ public:
      * @brief make_GET_SERVER (DEPRECATED)
      * @return
      */
-    QString make_GET_SERVER();
+    Q_DECL_DEPRECATED QString make_GET_SERVER();
 
     QString make_JOIN(const QString &channelName);
 

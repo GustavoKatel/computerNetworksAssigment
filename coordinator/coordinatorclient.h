@@ -19,11 +19,17 @@ public:
     /**
      * @brief getServer DEPRECATED
      */
-    void getServer();
+    Q_DECL_DEPRECATED void getServer();
 
     void join(const QString &channelName);
 
-    void serverAdd(const QHostAddress &addr, int port);
+    /**
+     * @brief serverAdd DEPRECATED
+     * @param addr
+     * @param port
+     */
+
+    Q_DECL_DEPRECATED void serverAdd(const QHostAddress &addr, int port);
 
     void getChannels();
 
