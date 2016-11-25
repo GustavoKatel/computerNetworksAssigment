@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTcpSocket>
 #include <QHostAddress>
+#include <QDataStream>
 
 #include <protocol/protocol.h>
 
@@ -18,12 +19,16 @@ public:
 signals:
     void messageReceived(const QString &message);
 
+private slots:
+    void on_readyRead();
+
 private:
     QHostAddress _addr;
     int _port;
-    ProtocolParser _parser;
 
-    void tcpSend(const QString &data);
+    QDataStream in;
+
+    ProtocolParser _parser;
 };
 
 #endif // SERVERCLIENT_H

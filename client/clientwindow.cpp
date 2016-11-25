@@ -6,7 +6,8 @@
 ClientWindow::ClientWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ClientWindow),
-    _coordinatorClient(nullptr)
+    _coordinatorClient(nullptr),
+    _serverClient(nullptr)
 {
     ui->setupUi(this);
 
@@ -16,6 +17,8 @@ ClientWindow::ClientWindow(QWidget *parent) :
 
     initCoordinator();
 
+    // This call won't be here
+    initServer();
 }
 
 ClientWindow::~ClientWindow()
@@ -42,6 +45,19 @@ void ClientWindow::initCoordinator()
 {
 
 
+}
+
+void ClientWindow::initServer()
+{
+    _serverClient = new ServerClient(QHostAddress("192.168.0.59"), 1234, this);
+
+    _serverClient->sendMessage("connected to server");
+
+    connect(_serverClient, &ServerClient::messageReceived, this, [this](const QString &message) {
+        qDebug() << "message received";
+
+        ui->tb_chat->append(message);
+    });
 }
 
 void ClientWindow::connectToCoordinator()
@@ -165,6 +181,8 @@ void ClientWindow::on_toolButton_clicked()
 
 void ClientWindow::sendText(const QString &text)
 {
+    _serverClient->sendMessage(text);
+
     ui->tb_chat->append(QString(tr("<font color=\"red\">[%1]</font>: %2"))
                         .arg(ui->le_nickname->text(), text));
 }
