@@ -21,7 +21,7 @@ void ServerClient::sendMessage(const QString &message)
 {
     qDebug() << "sending message " + message;
 
-    this->write(message.toUtf8());
+    this->write(message.toUtf8()+"\n");
     this->waitForBytesWritten();
 }
 
