@@ -24,7 +24,8 @@ SOURCES += main.cpp \
     protocol/protocol.cpp \
     dataclass/d_channel.cpp \
     dataclass/d_server.cpp \
-    coordinator/coordinatorclient.cpp
+    coordinator/coordinatorclient.cpp \
+    server/serverclient.cpp
 
 HEADERS  += mainwindow/mainwindow.h \
     client/clientwindow.h \
@@ -37,7 +38,8 @@ HEADERS  += mainwindow/mainwindow.h \
     protocol/protocol.h \
     dataclass/d_channel.h \
     dataclass/d_server.h \
-    coordinator/coordinatorclient.h
+    coordinator/coordinatorclient.h \
+    server/serverclient.h
 
 FORMS    += mainwindow/mainwindow.ui \
     client/clientwindow.ui \

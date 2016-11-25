@@ -65,19 +65,14 @@ void CoordinatorClient::join(const QString &channelName)
     udpSend(_parser.make_JOIN(channelName));
 }
 
-void CoordinatorClient::serverAdd(const QHostAddress &addr, int port)
-{
-    udpSend(_parser.make_SERVER_ADD(addr, port));
-}
-
 void CoordinatorClient::getChannels()
 {
     udpSend(_parser.make_GET_CHANNELS());
 }
 
-void CoordinatorClient::notifyChannels(QList<QString> channelsName)
+void CoordinatorClient::notifyChannels(const QHostAddress &addr, int port, QList<QString> channelsName)
 {
-    udpSend(_parser.make_NOTIFY_CHANNELS(channelsName));
+    udpSend(_parser.make_NOTIFY_CHANNELS(addr, port, channelsName));
 }
 
 void CoordinatorClient::udpSend(const QString &data)

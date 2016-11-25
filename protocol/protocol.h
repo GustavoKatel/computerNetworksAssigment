@@ -74,9 +74,7 @@ public:
 
     QString make_JOIN(const QString &channelName);
 
-    QString make_SERVER_ADD(const QHostAddress &addr, int port);
-
-    QString make_NOTIFY_CHANNELS(QList<QString> channelsName);
+    QString make_NOTIFY_CHANNELS(const QHostAddress &addr, int port, QList<QString> channelsName);
 
     QString make_SERVER_INFO(ServerData *server);
 

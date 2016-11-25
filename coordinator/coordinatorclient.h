@@ -23,17 +23,9 @@ public:
 
     void join(const QString &channelName);
 
-    /**
-     * @brief serverAdd DEPRECATED
-     * @param addr
-     * @param port
-     */
-
-    Q_DECL_DEPRECATED void serverAdd(const QHostAddress &addr, int port);
-
     void getChannels();
 
-    void notifyChannels(QList<QString> channelsName);
+    void notifyChannels(const QHostAddress &addr, int port, QList<QString> channelsName);
 
 signals:
     void ack();
