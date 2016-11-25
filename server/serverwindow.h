@@ -43,6 +43,9 @@ private:
 
     ConnectToCoordinatorDialog *_connectToCoordinatorDialog;
 
+    // Timer
+    QTimer *_notifyChannelsTimer;
+
     void initCoordinator();
     void connectToCoordinator();
 
@@ -57,6 +60,7 @@ private:
     void createChannel(QString channelName);
     void addUserToChannel(QTcpSocket *user, QString channelName);
 
+    void notifyCurrentChannels();
     void destroyChannel();
 
     void log(QString message);

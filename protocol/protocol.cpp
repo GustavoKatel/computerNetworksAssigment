@@ -270,6 +270,11 @@ QString ProtocolParser::make_SERVER_ADD(const QHostAddress &addr, int port)
     return make(ProtocolMethod::SERVER_ADD, QStringList() << addr.toString() << QString::number(port));
 }
 
+QString ProtocolParser::make_NOTIFY_CHANNELS(QList<QString> channelsName)
+{
+    return "NOTIFY CHANNELS";
+}
+
 QString ProtocolParser::make_GET_CHANNELS()
 {
     return make(ProtocolMethod::GET_CHANNELS, QStringList());
