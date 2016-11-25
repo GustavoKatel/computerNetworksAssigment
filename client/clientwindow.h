@@ -9,6 +9,7 @@
 
 #include "client/connecttocoordinatordialog.h"
 #include "coordinator/coordinatorclient.h"
+#include "server/serverclient.h"
 
 namespace Ui {
 class ClientWindow;
@@ -49,15 +50,22 @@ private:
 
     QList<ChannelData *> _knownChannels;
 
+    // Server
+    ServerClient *_serverClient;
+
     void log(const QString &msg);
 
     void initChat();
 
     void initCoordinator();
 
+    void initServer();
+
     void connectToCoordinator();
 
     void processCommand(const QString &line);
+
+    void displayMessage(const QString &displayMessage, const QString &text);
 
     void sendText(const QString &text);
 };

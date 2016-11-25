@@ -37,7 +37,7 @@ QWidget* ChannelData::initializeTab(QTabWidget *tabParent)
 void ChannelData::addUser(QTcpSocket *user)
 {
     // Notify all users that someone joined the channel
-    sendMessage("User joined the channel");
+    sendMessage("User joined the channel\n");
 
     // Add user list of users
     users.append(user);
@@ -85,6 +85,6 @@ void ChannelData::on_disconnected(QTcpSocket *tcpSocket)
 {
     users.removeOne(tcpSocket);
 
-    sendMessage("Some user disconnected");
+    sendMessage("Some user disconnected\n");
     log("Some user disconnected");
 }
