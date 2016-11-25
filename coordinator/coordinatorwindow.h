@@ -36,8 +36,13 @@ private:
 
     QUdpSocket *_socket;
 
+    // key: server id
     QHash<QString, ServerData *> _serverList;
+
+    // key: server id
     QHash<QString, QTreeWidgetItem *> _serverTreeMap;
+
+    // key: server id
     QHash<QString, QList<ChannelData *>> _channelMap;
 
     ProtocolParser _parser;

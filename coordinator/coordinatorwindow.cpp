@@ -192,9 +192,7 @@ void CoordinatorWindow::registerChannels(QHostAddress &senderAddr, int senderPor
         // if the server already exists, clear everything we know about it
         if(_serverList.contains(id)) {
             for(int i=0;i<_serverTreeMap[id]->childCount();i++) {
-                QTreeWidgetItem *child = _serverTreeMap[id]->child(i);
-                _serverTreeMap[id]->removeChild(child);
-                delete child;
+                qDeleteAll(_serverTreeMap[id]->takeChildren());
             }
         } else {
             _serverList[id] = new ServerData(QHostAddress(host), port.toInt());
