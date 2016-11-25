@@ -55,11 +55,6 @@ void CoordinatorClient::doDatagram(const QString &data)
 
 }
 
-void CoordinatorClient::getServer()
-{
-    udpSend(_parser.make_GET_SERVER());
-}
-
 void CoordinatorClient::join(const QString &channelName)
 {
     udpSend(_parser.make_JOIN(channelName));

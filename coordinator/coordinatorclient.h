@@ -16,11 +16,6 @@ class CoordinatorClient : public QUdpSocket
 public:
     explicit CoordinatorClient(const QHostAddress &host, int port, QObject *parent = 0);
 
-    /**
-     * @brief getServer DEPRECATED
-     */
-    Q_DECL_DEPRECATED void getServer();
-
     void join(const QString &channelName);
 
     void getChannels();
