@@ -7,7 +7,7 @@
 #define REGEX_JOIN "^JOIN (\\w+)$"
 #define REGEX_SERVER_INFO "^SERVER INFO (.+) (\\d+)$"
 #define REGEX_GET_CHANNELS "^GET CHANNELS$"
-#define REGEX_CHANNEL_INFO "^CHANNEL INFO (\\w+) ([a-zA-Z0-9\\:\\.]+) (\\d+)$"
+#define REGEX_CHANNEL_INFO "^CHANNEL INFO ([\\w-_]+) ([a-zA-Z0-9\\:\\.]+) (\\d+)$"
 #define REGEX_OK "^OK$"
 
 #define FMT_NOTIFY_CHANNELS "NOTIFY CHANNELS %1 %2 %3"
