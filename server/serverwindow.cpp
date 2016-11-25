@@ -3,10 +3,67 @@
 
 #include <QDateTime>
 #include <QtWidgets>
+#include <QtNetwork>
 
 ServerWindow::ServerWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::ServerWindow)
+    ui(new Ui::ServerWindow),
+    _parser(this),
+    _coordinatorClient(nullptr)
+{
+    startServer();
+
+    connectToCoordinator();
+}
+
+ServerWindow::~ServerWindow()
+{
+    delete ui;
+}
+
+// TODO: Code almost duplicated from Client
+void ServerWindow::connectToCoordinator()
+{
+    // hide main window
+    this->hide();
+
+    // always create a dialog, since it deletes itself when closed. See below
+    _connectToCoordinatorDialog = new ConnectToCoordinatorDialog(this);
+
+    // connects the finished slot and retrieves the inputted information
+    connect(_connectToCoordinatorDialog, &QDialog::finished, this, [this](int result){
+
+        if(result) {
+            _coordinatorAddr = QHostAddress(_connectToCoordinatorDialog->getAddress());
+            _coordinatorPort = _connectToCoordinatorDialog->getPort();
+
+            // memory safety first :p
+            if(_coordinatorClient) {
+                _coordinatorClient->close();
+                _coordinatorClient->deleteLater();
+                _coordinatorClient = nullptr;
+            }
+
+            _coordinatorClient = new CoordinatorClient(_coordinatorAddr, _coordinatorPort, this);
+
+            // TODO: Wait for OK for x seconds and close everything if no answer
+            _coordinatorClient->serverAdd(tcpServer->serverAddress(), tcpServer->serverPort());
+        }
+
+        // always delete this dialog
+        _connectToCoordinatorDialog->deleteLater();
+        _connectToCoordinatorDialog = nullptr;
+
+    });
+
+    // set modal dialog to avoid user missing the window
+    _connectToCoordinatorDialog->setModal(true);
+    _connectToCoordinatorDialog->show();
+}
+
+
+
+void ServerWindow::startServer()
 {
     ui->setupUi(this);
 
@@ -18,11 +75,6 @@ ServerWindow::ServerWindow(QWidget *parent) :
     log("Starting server");
     startTCPServer();
     log("Server started");
-}
-
-ServerWindow::~ServerWindow()
-{
-    delete ui;
 }
 
 void ServerWindow::startTCPServer()
