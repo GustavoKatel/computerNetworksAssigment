@@ -13,8 +13,6 @@ ServerClient::ServerClient(const QHostAddress &host, int port, QObject *parent) 
         qDebug() << "Connected to server!";
     }
 
-    in.setDevice(this);
-
     connect(this, &QIODevice::readyRead,
             this, &ServerClient::on_readyRead);
 }

@@ -26,8 +26,6 @@ private:
     QHostAddress _addr;
     int _port;
 
-    QDataStream in;
-
     ProtocolParser _parser;
 };
 
