@@ -175,7 +175,7 @@ void ServerWindow::addUserToChannel(QTcpSocket *user, QString channelName)
 
 // Notify coordinator of current channels
 void ServerWindow::notifyCurrentChannels() {
-    log("Notifying coordinator of channels");
+    // log("Notifying coordinator of channels");
 
     _coordinatorClient->notifyChannels(channelsList->keys());
 }
