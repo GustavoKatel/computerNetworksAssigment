@@ -18,8 +18,8 @@ CoordinatorWindow::CoordinatorWindow(QWidget *parent) :
 
     // default text to first non localhost ipv6, fallback to ipv4
     // fallback to any
-    // ui->le_addr->setText(Utils::getFirstNonLocalhost(false, QHostAddress::Any).toString());
-    ui->le_addr->setText(QHostAddress(QHostAddress::Any).toString());
+    ui->le_addr->setText(Utils::getFirstNonLocalhost(true).toString());
+    // ui->le_addr->setText(QHostAddress(QHostAddress::Any).toString());
 }
 
 CoordinatorWindow::~CoordinatorWindow()

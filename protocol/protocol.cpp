@@ -3,14 +3,14 @@
 #include "utils.h"
 
 #define REGEX_QUERY_SERVER "^GET SERVER$"
-#define REGEX_SERVER_ADD "^SERVER ADD ([a-zA-Z0-9\\:\\.]+) (\\d+)$"
+#define REGEX_NOTIFY_CHANNELS "^NOTIFY CHANNELS ([a-zA-Z0-9\\:\\.]+) (\\d+) (\\w+)+$"
 #define REGEX_JOIN "^JOIN (\\w+)$"
 #define REGEX_SERVER_INFO "^SERVER INFO (.+) (\\d+)$"
 #define REGEX_GET_CHANNELS "^GET CHANNELS$"
 #define REGEX_CHANNEL_INFO "^CHANNEL INFO (\\w+) ([a-zA-Z0-9\\:\\.]+) (\\d+)$"
 #define REGEX_OK "^OK$"
 
-#define FMT_SERVER_ADD "SERVER ADD %1 %2"
+#define FMT_NOTIFY_CHANNELS "NOTIFY CHANNELS %1 %2 %3"
 #define FMT_JOIN "JOIN %1"
 #define FMT_SERVER_INFO "SERVER INFO %1 %2"
 #define FMT_CHANNEL_INFO "CHANNEL INFO %1 %2 %3"
@@ -60,8 +60,8 @@ QString ProtocolParser::make(const ProtocolMethod &method, const QStringList &ar
         }
         return res;
 
-    case SERVER_ADD:
-        res = FMT_SERVER_ADD;
+    case NOTIFY_CHANNELS:
+        res = FMT_NOTIFY_CHANNELS;
         for(auto arg : args) {
             res = res.arg(arg);
         }
@@ -166,9 +166,9 @@ bool ProtocolParser::parseLine(const QString &data)
         args = Utils::testRegexAndCapture(REGEX_QUERY_SERVER, data);
         res = true;
 
-    } else if(Utils::testRegex(REGEX_SERVER_ADD, data)) {
+    } else if(Utils::testRegex(REGEX_NOTIFY_CHANNELS, data)) {
         method = SERVER_ADD;
-        args = Utils::testRegexAndCapture(REGEX_SERVER_ADD, data);
+        args = Utils::testRegexAndCapture(REGEX_NOTIFY_CHANNELS, data);
         res = true;
 
     } if(Utils::testRegex(REGEX_SERVER_INFO, data)) {
@@ -265,14 +265,18 @@ QString ProtocolParser::make_JOIN(const QString &channelName)
     return make(ProtocolMethod::JOIN, QStringList(channelName));
 }
 
-QString ProtocolParser::make_SERVER_ADD(const QHostAddress &addr, int port)
+QString ProtocolParser::make_NOTIFY_CHANNELS(const QHostAddress &addr, int port, QList<QString> channelsName)
 {
-    return make(ProtocolMethod::SERVER_ADD, QStringList() << addr.toString() << QString::number(port));
-}
+    // Arguments list
+    // 1: IP, 2: port, 3: channels list, separated by spaces
+    QStringList args = QStringList();
 
-QString ProtocolParser::make_NOTIFY_CHANNELS(QList<QString> channelsName)
-{
-    return "NOTIFY CHANNELS";
+    args << addr.toString();
+    args << QString::number(port);
+
+    args << channelsName.join(" ");
+
+    return make(ProtocolMethod::NOTIFY_CHANNELS, args);
 }
 
 QString ProtocolParser::make_GET_CHANNELS()

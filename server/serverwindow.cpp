@@ -47,9 +47,6 @@ void ServerWindow::connectToCoordinator()
 
             _coordinatorClient = new CoordinatorClient(_coordinatorAddr, _coordinatorPort, this);
 
-            // TODO: Wait for OK for x seconds and close everything if no answer
-            _coordinatorClient->serverAdd(tcpServer->serverAddress(), tcpServer->serverPort());
-
             // Register handler to notify coordinator of channels every X seconds
             _notifyChannelsTimer = new QTimer(this);
             connect(_notifyChannelsTimer, &QTimer::timeout, this, &ServerWindow::notifyCurrentChannels);
@@ -177,5 +174,5 @@ void ServerWindow::addUserToChannel(QTcpSocket *user, QString channelName)
 void ServerWindow::notifyCurrentChannels() {
     // log("Notifying coordinator of channels");
 
-    _coordinatorClient->notifyChannels(channelsList->keys());
+    _coordinatorClient->notifyChannels(tcpServer->serverAddress(), tcpServer->serverPort(), channelsList->keys());
 }
