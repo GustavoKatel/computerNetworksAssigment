@@ -1,7 +1,8 @@
 #include "channel.h"
 #include <QVBoxLayout>
 
-Channel::Channel(const QString &name, QTabWidget *tabParent) : QObject()
+Channel::Channel(const QString &name, QTabWidget *tabParent) :
+    QObject()
 {
     this->name = name;
     this->users = QList<QTcpSocket*>();
@@ -12,7 +13,7 @@ Channel::Channel(const QString &name, QTabWidget *tabParent) : QObject()
 QWidget* Channel::initializeTab(QTabWidget *tabParent)
 {
     // Initialize tab
-    QWidget *tab = new QWidget();
+    QWidget *tab = new QWidget(tabParent);
     tab->setObjectName(name);
 
     // Create text area

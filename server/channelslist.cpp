@@ -1,6 +1,7 @@
 #include "channelslist.h"
 
-ChannelsList::ChannelsList()
+ChannelsList::ChannelsList() :
+    QHash<QString, Channel*>()
 {
 
 }
