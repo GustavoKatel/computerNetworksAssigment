@@ -17,11 +17,19 @@ ServerClient::ServerClient(const QHostAddress &host, int port, QObject *parent) 
             this, &ServerClient::on_readyRead);
 }
 
-void ServerClient::sendMessage(const QString nickname, const QString &message)
+void ServerClient::sendMessage(const QString &nickname, const QString &message)
 {
     QString formattedMessage = nickname + "|" + message + "\n";
 
     this->write(formattedMessage.toUtf8());
+    this->waitForBytesWritten();
+}
+
+void ServerClient::sendJoin(const QString &channelName)
+{
+    QString message = "JOIN " + channelName + "\n";
+
+    this->write(message.toUtf8());
     this->waitForBytesWritten();
 }
 

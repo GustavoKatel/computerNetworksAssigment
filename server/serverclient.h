@@ -14,8 +14,9 @@ class ServerClient : public QTcpSocket
 public:
     explicit ServerClient(const QHostAddress &host, int port, QObject *parent = 0);
 
-    void sendMessage(const QString nickname, const QString &message);
+    void sendMessage(const QString &nickname, const QString &message);
 
+    void sendJoin(const QString &channelName);
 signals:
     void messageReceived(const QString nickname, const QString &message);
 

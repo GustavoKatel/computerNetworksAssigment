@@ -36,6 +36,8 @@ private slots:
 
     void on_list_channels_itemDoubleClicked(QListWidgetItem *item);
 
+    void on_bt_channel_clicked();
+
 private:
     Ui::ClientWindow *ui;
 
@@ -59,7 +61,8 @@ private:
 
     void initCoordinator();
 
-    void initServer();
+    void initServerClient(ChannelData *channel);
+    void destroyServerClient();
 
     void connectToCoordinator();
 

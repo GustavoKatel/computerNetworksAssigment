@@ -16,9 +16,6 @@ ClientWindow::ClientWindow(QWidget *parent) :
     initChat();
 
     initCoordinator();
-
-    // This call won't be here
-    initServer();
 }
 
 ClientWindow::~ClientWindow()
@@ -47,17 +44,36 @@ void ClientWindow::initCoordinator()
 
 }
 
-void ClientWindow::initServer()
+void ClientWindow::initServerClient(ChannelData *channel)
 {
-    _serverClient = new ServerClient(QHostAddress("192.168.0.59"), 1234, this);
+    _serverClient = new ServerClient(channel->getAddress(), channel->getPort(), this);
+    _serverClient->waitForConnected();
+    _serverClient->sendJoin(channel->getName());
 
-    // _serverClient->sendMessage("SYSTEM", "connected to server");
+    displayMessage("SYSTEM", "Connected to channel " + channel->getName());
+
+    // Update GUI
+    ui->bt_channel->setText(channel->getName());
+    ui->list_channels->setEnabled(false);
 
     connect(_serverClient, &ServerClient::messageReceived, this,
             [this](const QString &nickname, const QString &message) {
                 displayMessage(nickname, message);
             }
     );
+}
+
+void ClientWindow::destroyServerClient() {
+    // Update GUI
+    ui->bt_channel->setText("[No channel]");
+    ui->list_channels->setEnabled(true);
+
+    displayMessage("SYSTEM", "Left channel");
+
+    // Destroy connection
+    _serverClient->close();
+    _serverClient->deleteLater();
+    _serverClient = nullptr;
 }
 
 void ClientWindow::connectToCoordinator()
@@ -187,7 +203,9 @@ void ClientWindow::displayMessage(const QString &nickname, const QString &text)
 
 void ClientWindow::sendText(const QString &text)
 {
-    _serverClient->sendMessage(ui->le_nickname->text(), text);
+    if (_serverClient != NULL) {
+        _serverClient->sendMessage(ui->le_nickname->text(), text);
+    }
 }
 
 void ClientWindow::on_tb_chat_anchorClicked(const QUrl &arg1)
@@ -229,4 +247,12 @@ void ClientWindow::on_list_channels_itemDoubleClicked(QListWidgetItem *item)
 {
     int index = ui->list_channels->row(item);
     qDebug() << _knownChannels[index]->getName();
+
+    // Open TCP connection with server
+    initServerClient(_knownChannels[index]);
+}
+
+void ClientWindow::on_bt_channel_clicked()
+{
+    destroyServerClient();
 }
