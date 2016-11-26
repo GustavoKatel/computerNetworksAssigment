@@ -19,7 +19,7 @@ QWidget* ChannelData::initializeTab(QTabWidget *tabParent)
     // Create text area
     textEditLog = new QPlainTextEdit();
     textEditLog->setObjectName(QStringLiteral("textEditLog"));
-    textEditLog->setEnabled(false);
+    textEditLog->setReadOnly(true);
 
     // Create layout that will contain text area
     QVBoxLayout *layout = new QVBoxLayout;
@@ -38,7 +38,8 @@ QWidget* ChannelData::initializeTab(QTabWidget *tabParent)
 void ChannelData::addUser(QTcpSocket *user)
 {
     // Notify all users that someone joined the channel
-    sendMessage("User joined the channel\n");
+    // Deprecated: Users announce themselves
+    // sendMessage("User joined the channel\n");
 
     // Add user list of users
     users.append(user);
@@ -55,6 +56,8 @@ void ChannelData::addUser(QTcpSocket *user)
 
     connect(user, &QTcpSocket::disconnected,
             this, [this, user]{ on_disconnected(user); });
+
+    on_readyRead(user);
 }
 
 void ChannelData::sendMessage(QString message)
@@ -84,8 +87,7 @@ void ChannelData::log(QString message)
 
 void ChannelData::on_readyRead(QTcpSocket *tcpSocket)
 {
-    if(tcpSocket->canReadLine())
-    {
+    while(tcpSocket->canReadLine()) {
         QByteArray biteArray = tcpSocket->readLine();
         sendMessage(biteArray);
     }
@@ -95,6 +97,8 @@ void ChannelData::on_disconnected(QTcpSocket *tcpSocket)
 {
     users.removeOne(tcpSocket);
 
-    sendMessage("Some user disconnected\n");
+    // Deprecated: Users announce themselves
+    // sendMessage("Some user disconnected\n");
+
     log("Some user disconnected");
 }

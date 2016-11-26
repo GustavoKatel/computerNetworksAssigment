@@ -124,7 +124,7 @@ void ServerWindow::on_readyRead(QTcpSocket *tcpSocket)
 // Insert new user on default channel and register on_readyRead
 // So we can parse all his messages
 void ServerWindow::handleConnection() {
-    while (tcpServer->hasPendingConnections()) {
+    while(tcpServer->hasPendingConnections()) {
         log("New connection!");
 
         QTcpSocket *tcpSocket = tcpServer->nextPendingConnection();

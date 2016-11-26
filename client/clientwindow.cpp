@@ -56,6 +56,8 @@ void ClientWindow::initServerClient(ChannelData *channel)
     ui->bt_channel->setText(channel->getName());
     ui->list_channels->setEnabled(false);
 
+    sendText("(connected to channel)");
+
     connect(_serverClient, &ServerClient::messageReceived, this,
             [this](const QString &nickname, const QString &message) {
                 displayMessage(nickname, message);
@@ -67,6 +69,8 @@ void ClientWindow::destroyServerClient() {
     // Update GUI
     ui->bt_channel->setText("[No channel]");
     ui->list_channels->setEnabled(true);
+
+    sendText("(left the channel)");
 
     displayMessage("SYSTEM", "Left channel");
 
@@ -204,6 +208,8 @@ void ClientWindow::displayMessage(const QString &nickname, const QString &text)
 void ClientWindow::sendText(const QString &text)
 {
     if (_serverClient != NULL) {
+        qDebug() << "Sending message: " + text;
+
         _serverClient->sendMessage(ui->le_nickname->text(), text);
     }
 }

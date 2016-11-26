@@ -35,8 +35,7 @@ void ServerClient::sendJoin(const QString &channelName)
 
 void ServerClient::on_readyRead()
 {
-    if(this->canReadLine())
-    {
+    while(this->canReadLine()) {
         QString fullMessage = this->readLine();
 
         QString nickname;
