@@ -10,10 +10,10 @@
 ServerWindow::ServerWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ServerWindow), 
+    tcpServer(nullptr),
     _parser(this),
     _coordinatorClient(nullptr),
-    _notifyChannelsTimer(nullptr),
-    tcpServer(nullptr)
+    _notifyChannelsTimer(nullptr)
 {
     ui->setupUi(this);
     initializeTextFields();
@@ -165,6 +165,7 @@ void ServerWindow::on_btnStartServer_clicked()
     startServer();
 
     this->ui->btnStartServer->setEnabled(false);
+    this->ui->textEditIP->setEnabled(false);
     this->ui->textEditPort->setEnabled(false);
 
     this->ui->textEditChannelName->setEnabled(true);
