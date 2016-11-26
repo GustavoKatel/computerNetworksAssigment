@@ -5,6 +5,7 @@
 #include <QUdpSocket>
 #include <QHash>
 #include <QTreeWidgetItem>
+#include <QTimer>
 
 #include "dataclass/d_server.h"
 #include "dataclass/d_channel.h"
@@ -27,6 +28,8 @@ private slots:
 
     void socket_changed_state(QAbstractSocket::SocketState state);
 
+    void timer_timeout();
+
     void on_bt_start_clicked();
 
     void on_bt_stop_clicked();
@@ -45,7 +48,12 @@ private:
     // key: server id
     QHash<QString, QList<ChannelData *>> _channelMap;
 
+    // key: server id
+    QHash<QString, long> _serverPingMap;
+
     ProtocolParser _parser;
+
+    QTimer _cleanDeadServersTimer;
 
     void processDatagram(QHostAddress &senderAddr, int senderPort, QByteArray *data);
 
@@ -54,6 +62,8 @@ private:
     void udpSend(QHostAddress &addr, int port, const QString &data);
 
     void updateServerListView();
+
+    void initTimer();
 
     // protocol functions
     void registerChannels(QHostAddress &senderAddr, int senderPort);

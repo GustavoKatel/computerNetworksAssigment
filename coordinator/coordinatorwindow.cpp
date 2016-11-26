@@ -3,6 +3,7 @@
 
 #include <QMessageBox>
 #include <QRegExp>
+#include <QDateTime>
 
 #include "utils.h"
 
@@ -20,6 +21,8 @@ CoordinatorWindow::CoordinatorWindow(QWidget *parent) :
     // fallback to any
     ui->le_addr->setText(Utils::getFirstNonLocalhost(true).toString());
     // ui->le_addr->setText(QHostAddress(QHostAddress::Any).toString());
+
+    initTimer();
 }
 
 CoordinatorWindow::~CoordinatorWindow()
@@ -215,8 +218,9 @@ void CoordinatorWindow::registerChannels(QHostAddress &senderAddr, int senderPor
             channelNode->setText(0, channelName);
         }
 
-    }
+        _serverPingMap[id] =  QDateTime::currentMSecsSinceEpoch();
 
+    }
 
 
     udpSend(senderAddr, senderPort, _parser.make_OK());
@@ -236,4 +240,45 @@ void CoordinatorWindow::sendChannels(QHostAddress &addr, int port)
     }
 
     udpSend(addr, port, data);
+}
+
+void CoordinatorWindow::initTimer()
+{
+    _cleanDeadServersTimer.setInterval(1000);
+
+    connect(&_cleanDeadServersTimer, &QTimer::timeout, this, &CoordinatorWindow::timer_timeout);
+
+    _cleanDeadServersTimer.start();
+}
+
+void CoordinatorWindow::timer_timeout()
+{
+
+    long lastPing, currentMsec = QDateTime::currentMSecsSinceEpoch();
+
+    for(auto serverId : _serverList.keys()) {
+
+        lastPing = _serverPingMap[serverId];
+        if(currentMsec - lastPing > 5000) {
+
+            for(int i=0;i<_serverTreeMap[serverId]->childCount();i++) {
+                qDeleteAll(_serverTreeMap[serverId]->takeChildren());
+            }
+
+            delete _serverTreeMap[serverId];
+
+            for(auto chd : _channelMap[serverId]) {
+                delete chd;
+            }
+            _channelMap[serverId].clear();
+
+            _serverList.remove(serverId);
+            _serverTreeMap.remove(serverId);
+            _channelMap.remove(serverId);
+            _serverPingMap.remove(serverId);
+
+        }
+
+    }
+
 }
