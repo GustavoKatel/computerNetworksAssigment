@@ -6,6 +6,7 @@
 #include <QUdpSocket>
 #include <QHash>
 #include <QListWidgetItem>
+#include <QTimer>
 
 #include "client/connecttocoordinatordialog.h"
 #include "coordinator/coordinatorclient.h"
@@ -38,6 +39,8 @@ private slots:
 
     void on_bt_channel_clicked();
 
+    void on_timer_timeout();
+
 private:
     Ui::ClientWindow *ui;
 
@@ -54,6 +57,9 @@ private:
 
     // Server
     ServerClient *_serverClient;
+
+    // timer to update channel list
+    QTimer timer;
 
     void log(const QString &msg);
 
@@ -73,6 +79,8 @@ private:
     void sendText(const QString &text);
 
     void getNickname();
+
+    void initTimer();
 };
 
 #endif // CLIENTWINDOW_H
