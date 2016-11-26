@@ -1,5 +1,6 @@
 #include "channel.h"
 #include <QVBoxLayout>
+#include <QScrollBar>
 
 ChannelData::ChannelData(const QString &name, QTabWidget *tabParent) : QObject()
 {
@@ -58,6 +59,8 @@ void ChannelData::addUser(QTcpSocket *user)
 
 void ChannelData::sendMessage(QString message)
 {
+    log("Message received: " + message);
+
     QListIterator<QTcpSocket*> iterator(users);
     while (iterator.hasNext()) {
         QTcpSocket *user = iterator.next();
@@ -73,6 +76,10 @@ void ChannelData::log(QString message)
     QDateTime currentTime = QDateTime::currentDateTime();
     textEditLog->appendPlainText(
                 currentTime.toString() + ": " + message.trimmed());
+
+    // Auto scroll to bottom
+    QScrollBar *sb = textEditLog->verticalScrollBar();
+    sb->setValue(sb->maximum());
 }
 
 void ChannelData::on_readyRead(QTcpSocket *tcpSocket)
