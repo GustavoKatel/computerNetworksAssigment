@@ -1,7 +1,20 @@
 #include "client/clientwindow.h"
 #include "ui_clientwindow.h"
 
+#include <QInputDialog>
+#include <QMessageBox>
+
 #include "utils.h"
+
+#ifdef Q_OS_UNIX
+
+#define SYS_USERNAME qgetenv("USER")
+
+#elif Q_OS_WIN
+
+#define SYS_USERNAME qgetenv("USERNAME")
+
+#endif
 
 ClientWindow::ClientWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -12,6 +25,8 @@ ClientWindow::ClientWindow(QWidget *parent) :
     ui->setupUi(this);
 
     ui->bt_channel->setText(tr("[No channel]"));
+
+    getNickname();
 
     initChat();
 
@@ -255,4 +270,25 @@ void ClientWindow::on_list_channels_itemDoubleClicked(QListWidgetItem *item)
 void ClientWindow::on_bt_channel_clicked()
 {
     destroyServerClient();
+}
+
+void ClientWindow::getNickname()
+{
+
+    bool ok;
+    QString text = QInputDialog::getText(this, tr("ircUFPB - Digite seu nickname"),
+                                         tr("Nickname:"), QLineEdit::Normal,
+                                         SYS_USERNAME, &ok);
+    if(!ok) {
+        qApp->quit();
+        return;
+    }
+
+    if(text.trimmed().isEmpty()) {
+        QMessageBox::information(this, tr("Erro"), tr("Nickname não pode ser vazio. Digite novamente"), QMessageBox::Ok);
+        getNickname();
+    }
+
+    ui->le_nickname->setText(text);
+
 }
