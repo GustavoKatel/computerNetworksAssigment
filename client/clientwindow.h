@@ -71,6 +71,8 @@ private:
     void displayMessage(const QString &displayMessage, const QString &text);
 
     void sendText(const QString &text);
+
+    void getNickname();
 };
 
 #endif // CLIENTWINDOW_H
