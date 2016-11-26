@@ -75,8 +75,8 @@ void ServerWindow::startTCPServer()
 {
     tcpServer = new QTcpServer(this);
 
-    QHostAddress hostAddress = QHostAddress(ui->textEditIP->toPlainText());
-    int port = ui->textEditPort->toPlainText().toInt();
+    QHostAddress hostAddress = QHostAddress(ui->textEditBindAddr->text());
+    int port = ui->textEditPort->text().toInt();
 
     if (!tcpServer->listen(hostAddress, port)) {
         QMessageBox::critical(this, tr("Error"),
@@ -155,8 +155,10 @@ void ServerWindow::addUserToChannel(QTcpSocket *user, QString channelName)
 void ServerWindow::notifyCurrentChannels() {
     // log("Notifying coordinator of channels");
 
+    QHostAddress address = QHostAddress(ui->textEditPublicAddr->text());
+
     if (tcpServer != NULL) {
-        _coordinatorClient->notifyChannels(tcpServer->serverAddress(), tcpServer->serverPort(), channelsList->keys());
+        _coordinatorClient->notifyChannels(address, tcpServer->serverPort(), channelsList->keys());
     }
 }
 
@@ -165,7 +167,8 @@ void ServerWindow::on_btnStartServer_clicked()
     startServer();
 
     this->ui->btnStartServer->setEnabled(false);
-    this->ui->textEditIP->setEnabled(false);
+    this->ui->textEditBindAddr->setEnabled(false);
+    this->ui->textEditPublicAddr->setEnabled(false);
     this->ui->textEditPort->setEnabled(false);
 
     this->ui->textEditChannelName->setEnabled(true);
@@ -178,7 +181,8 @@ void ServerWindow::initializeTextFields()
     int port = 1234;
 
     // Update fields with current IP and Port
-    ui->textEditIP->setText(hostAddress.toString());
+    ui->textEditBindAddr->setText(hostAddress.toString());
+    ui->textEditPublicAddr->setText(hostAddress.toString());
     ui->textEditPort->setText(QString::number(port));
 }
 

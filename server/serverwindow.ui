@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>622</width>
-    <height>369</height>
+    <width>733</width>
+    <height>401</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -58,35 +58,51 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Bind Address:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Public Address:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Port:</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <property name="sizeConstraint">
          <enum>QLayout::SetFixedSize</enum>
         </property>
         <item>
-         <widget class="QTextEdit" name="textEditIP">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>25</height>
-           </size>
+         <widget class="QLineEdit" name="textEditBindAddr">
+          <property name="toolTip">
+           <string>Bind Address</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QTextEdit" name="textEditPort">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>25</height>
-           </size>
+         <widget class="QLineEdit" name="textEditPublicAddr">
+          <property name="toolTip">
+           <string>Public Address</string>
           </property>
          </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="textEditPort"/>
         </item>
        </layout>
       </item>
@@ -120,7 +136,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>622</width>
+     <width>733</width>
      <height>19</height>
     </rect>
    </property>
