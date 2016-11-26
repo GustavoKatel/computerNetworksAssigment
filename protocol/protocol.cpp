@@ -4,7 +4,7 @@
 
 #define REGEX_QUERY_SERVER "^GET SERVER$"
 #define REGEX_NOTIFY_CHANNELS "^NOTIFY CHANNELS ([a-zA-Z0-9\\:\\.]+) (\\d+) ([\\w\\s-_]+)+$"
-#define REGEX_JOIN "^JOIN (\\w+)$"
+#define REGEX_JOIN "^JOIN ([\\w-_]+)$"
 #define REGEX_SERVER_INFO "^SERVER INFO (.+) (\\d+)$"
 #define REGEX_GET_CHANNELS "^GET CHANNELS$"
 #define REGEX_CHANNEL_INFO "^CHANNEL INFO ([\\w-_]+) ([a-zA-Z0-9\\:\\.]+) (\\d+)$"

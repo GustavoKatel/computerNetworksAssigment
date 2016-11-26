@@ -45,6 +45,9 @@ void ChannelData::addUser(QTcpSocket *user)
     // Log on tab
     log("User joined the channel: " + user->peerAddress().toString() + " " + QString::number(user->peerPort()));
 
+    // Remove signal from slot. Channel should take care of messages now
+    disconnect(user, &QIODevice::readyRead, 0, 0);
+
     // Add handler to new incoming messages
     connect(user, &QIODevice::readyRead,
             this, [this, user]{ on_readyRead(user); });

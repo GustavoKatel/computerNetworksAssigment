@@ -105,15 +105,18 @@ void ServerWindow::on_readyRead(QTcpSocket *tcpSocket)
         QByteArray ba = tcpSocket->readLine();
 
         // Parse message
-        // If create channel
-        createChannel(QString(ba).trimmed());
+        // If join, add user to channel
 
-        // If send message to a channel
+        _parser.parse(ba);
 
-        log(QString(ba));
+        if(_parser.getMethods().contains(ProtocolMethod::JOIN)) {
+            QString channelName = _parser.getArgs()[0][1];
+            log("User attempted to JOIN " + channelName);
 
-        // Write back to user
-        // tcpSocket->write(ba);
+            addUserToChannel(tcpSocket, channelName);
+        } else {
+            log("User sent invalid message: " + QString(ba));
+        }
     }
 }
 
@@ -125,9 +128,6 @@ void ServerWindow::handleConnection() {
         log("New connection!");
 
         QTcpSocket *tcpSocket = tcpServer->nextPendingConnection();
-
-        // Add user to channel
-        addUserToChannel(tcpSocket, "default-channel");
 
         connect(tcpSocket, &QIODevice::readyRead,
                 this, [this, tcpSocket]{ on_readyRead(tcpSocket); });
@@ -143,7 +143,12 @@ void ServerWindow::createChannel(QString channelName) {
 
 void ServerWindow::addUserToChannel(QTcpSocket *user, QString channelName)
 {
-    channelsList->addUserToChannel(user, channelName);
+    if (channelsList->keys().contains(channelName)) {
+        log("Channel exists. Adding user to it");
+        channelsList->addUserToChannel(user, channelName);
+    } else {
+        log("Channel not found");
+    }
 }
 
 // Notify coordinator of current channels
