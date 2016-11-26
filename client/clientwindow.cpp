@@ -31,6 +31,8 @@ ClientWindow::ClientWindow(QWidget *parent) :
     initChat();
 
     initCoordinator();
+
+    initTimer();
 }
 
 ClientWindow::~ClientWindow()
@@ -297,4 +299,18 @@ void ClientWindow::getNickname()
 
     ui->le_nickname->setText(text);
 
+}
+
+void ClientWindow::initTimer()
+{
+    timer.setInterval(5000);
+    connect(&timer, &QTimer::timeout, this, &ClientWindow::on_timer_timeout);
+    timer.start();
+}
+
+void ClientWindow::on_timer_timeout()
+{
+    if(this->_coordinatorClient) {
+        this->_coordinatorClient->getChannels();
+    }
 }
