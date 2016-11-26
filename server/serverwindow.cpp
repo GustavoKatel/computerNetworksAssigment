@@ -12,7 +12,8 @@ ServerWindow::ServerWindow(QWidget *parent) :
     ui(new Ui::ServerWindow), 
     _parser(this),
     _coordinatorClient(nullptr),
-    _notifyChannelsTimer(nullptr)
+    _notifyChannelsTimer(nullptr),
+    tcpServer(nullptr)
 {
     ui->setupUi(this);
     initializeTextFields();
@@ -149,7 +150,7 @@ void ServerWindow::addUserToChannel(QTcpSocket *user, QString channelName)
 void ServerWindow::notifyCurrentChannels() {
     // log("Notifying coordinator of channels");
 
-    if (tcpServer) {
+    if (tcpServer != NULL) {
         _coordinatorClient->notifyChannels(tcpServer->serverAddress(), tcpServer->serverPort(), channelsList->keys());
     }
 }
@@ -160,6 +161,9 @@ void ServerWindow::on_btnStartServer_clicked()
 
     this->ui->btnStartServer->setEnabled(false);
     this->ui->textEditPort->setEnabled(false);
+
+    this->ui->textEditChannelName->setEnabled(true);
+    this->ui->btnCreateChannel->setEnabled(true);
 }
 
 void ServerWindow::initializeTextFields()
@@ -170,4 +174,12 @@ void ServerWindow::initializeTextFields()
     // Update fields with current IP and Port
     ui->textEditIP->setText(hostAddress.toString());
     ui->textEditPort->setText(QString::number(port));
+}
+
+void ServerWindow::on_btnCreateChannel_clicked()
+{
+    QString channelName = ui->textEditChannelName->toPlainText().replace(" ", "-");
+    ui->textEditChannelName->clear();
+
+    createChannel(channelName);
 }

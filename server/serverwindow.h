@@ -29,6 +29,8 @@ private slots:
 
     void on_btnStartServer_clicked();
 
+    void on_btnCreateChannel_clicked();
+
 private:
     Ui::ServerWindow *ui;
     ChannelsList *channelsList;
