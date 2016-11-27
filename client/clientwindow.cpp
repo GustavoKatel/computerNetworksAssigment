@@ -310,7 +310,7 @@ void ClientWindow::initTimer()
 
 void ClientWindow::on_timer_timeout()
 {
-    if(this->_coordinatorClient) {
+    if(this->_coordinatorClient && this->_serverClient == NULL) {
         this->_coordinatorClient->getChannels();
     }
 }
