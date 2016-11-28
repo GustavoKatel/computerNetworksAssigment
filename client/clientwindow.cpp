@@ -83,6 +83,10 @@ void ClientWindow::initServerClient(ChannelData *channel)
 }
 
 void ClientWindow::destroyServerClient() {
+    if(_serverClient==nullptr) {
+        return;
+    }
+
     // Update GUI
     ui->bt_channel->setText("[No channel]");
     ui->list_channels->setEnabled(true);
